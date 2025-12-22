@@ -1,0 +1,44 @@
+@model project.Models.Client
+
+@{
+    ViewData["Title"] = "Inscription";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Créer un compte</h2>
+                    <form asp-action="Register" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Nom" class="form-label"></label>
+                            <input asp-for="Nom" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Prenom" class="form-label"></label>
+                            <input asp-for="Prenom" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Telephone" class="form-label"></label>
+                            <input asp-for="Telephone" type="tel" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Adresse" class="form-label"></label>
+                            <input asp-for="Adresse" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Déjà un compte ? <a href="@Url.Action("Login", "Auth")">Se connecter</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

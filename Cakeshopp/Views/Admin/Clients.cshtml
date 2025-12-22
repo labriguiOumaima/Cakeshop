@@ -1,0 +1,370 @@
+@{
+    ViewData["Title"] = "Clients";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+    var clients = ViewBag.Clients as List<dynamic> ?? new List<dynamic>();
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .page-header {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--lilas);
+        margin-bottom: 0.5rem;
+    }
+
+    .table-container {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        overflow-x: auto;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gris-texte);
+        margin-top: 1rem;
+    }
+
+        .table-custom thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        margin: 0 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+        .btn-edit:hover {
+            background: #007bff;
+            color: white;
+        }
+
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    .modal-content {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        color: var(--gris-texte);
+    }
+
+    .modal-header {
+        border-bottom: 2px solid var(--lilas);
+        background: rgba(232, 152, 154, 0.08);
+    }
+
+    .modal-title {
+        color: var(--lilas);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .form-control {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+        .form-control:focus {
+            background: var(--blanc);
+            border-color: var(--rose);
+            color: var(--gris-texte);
+            box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+        }
+
+    .form-label {
+        color: var(--lilas);
+        font-weight: 500;
+    }
+
+    .btn-add {
+        background: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            background: #d97b7d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(232, 152, 154, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: var(--lilas);
+        border-color: var(--lilas);
+        color: var(--blanc);
+    }
+
+        .btn-secondary:hover {
+            background-color: #b8a8ce;
+            border-color: #b8a8ce;
+        }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Gestion des Clients</h1>
+        <p style="color: var(--gris-texte); margin: 0;">Gérer tous les clients</p>
+    </div>
+    <button class="btn-add" onclick="ouvrirModalCreer()">
+        <i class="bi bi-plus-circle"></i> Ajouter un client
+    </button>
+</div>
+
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Adresse</th>
+                <th>Date Inscription</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (clients != null && clients.Count > 0)
+            {
+                @foreach (var client in clients)
+                {
+                    <tr>
+                        <td><strong>#@client.Id</strong></td>
+                        <td>@client.Nom</td>
+                        <td>@client.Prenom</td>
+                        <td>@client.Email</td>
+                        <td>@client.Telephone</td>
+                        <td>@client.Adresse</td>
+                        <td>@client.DateInscription.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn-action btn-edit" onclick="ouvrirModalModifier(@client.Id, '@Html.Raw((client.Nom ?? "").Replace("'", "\\'"))', '@Html.Raw((client.Prenom ?? "").Replace("'", "\\'"))', '@Html.Raw((client.Email ?? "").Replace("'", "\\'"))', '@Html.Raw((client.Telephone ?? "").Replace("'", "\\'"))', '@Html.Raw((client.Adresse ?? "").Replace("'", "\\'"))')">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </button>
+                            <button class="btn-action btn-delete" onclick="supprimerClient(@client.Id)">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center" style="padding: 3rem;">
+                        <i class="bi bi-people" style="font-size: 4rem; color: var(--rose); opacity: 0.3;"></i>
+                        <p style="color: var(--gris-texte); margin-top: 1rem;">Aucun client inscrit pour le moment</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Modifier/Créer -->
+<div class="modal fade" id="modalClient" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Modifier le client</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formClient">
+                    <input type="hidden" id="clientId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Téléphone</label>
+                        <input type="text" class="form-control" id="telephone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Adresse</label>
+                        <textarea class="form-control" id="adresse" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn-add" onclick="sauvegarderClient()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modalClient;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        modalClient = new bootstrap.Modal(document.getElementById('modalClient'));
+    });
+
+    function ouvrirModalCreer() {
+        document.getElementById('modalTitle').textContent = 'Ajouter un client';
+        document.getElementById('clientId').value = '';
+        document.getElementById('nom').value = '';
+        document.getElementById('prenom').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('telephone').value = '';
+        document.getElementById('adresse').value = '';
+        modalClient.show();
+    }
+
+    function ouvrirModalModifier(id, nom, prenom, email, telephone, adresse) {
+        document.getElementById('modalTitle').textContent = 'Modifier le client';
+        document.getElementById('clientId').value = id;
+        document.getElementById('nom').value = nom;
+        document.getElementById('prenom').value = prenom;
+        document.getElementById('email').value = email;
+        document.getElementById('telephone').value = telephone || '';
+        document.getElementById('adresse').value = adresse || '';
+        modalClient.show();
+    }
+
+    function sauvegarderClient() {
+        const clientId = document.getElementById('clientId').value;
+        const data = {
+            nom: document.getElementById('nom').value,
+            prenom: document.getElementById('prenom').value,
+            email: document.getElementById('email').value,
+            telephone: document.getElementById('telephone').value,
+            adresse: document.getElementById('adresse').value
+        };
+
+        // Validation
+        if (!data.nom || !data.prenom || !data.email) {
+            alert('Veuillez remplir tous les champs obligatoires');
+            return;
+        }
+
+        // Déterminer l'URL selon si c'est une création ou modification
+        const url = clientId ? '/Admin/ModifierClient' : '/Admin/CreerClient';
+
+        // Ajouter clientId seulement si c'est une modification
+        if (clientId) {
+            data.clientId = parseInt(clientId);
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                modalClient.hide();
+                location.reload();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'enregistrement');
+        });
+    }
+
+    function supprimerClient(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) return;
+
+        fetch('/Admin/SupprimerClient', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ clientId: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+</script>

@@ -1,0 +1,295 @@
+﻿@model project.Models.Commande
+
+@{
+    ViewData["Title"] = "Détails de la Commande #" + Model.Id;
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .details-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem 4rem;
+    }
+
+    .breadcrumb-custom {
+        color: var(--gris-texte);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--rose);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: #d97b7d;
+            }
+
+    .details-card {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--lilas);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--lilas);
+        padding-bottom: 1rem;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        color: var(--gris-texte);
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        color: var(--rose);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .badge-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+        width: fit-content;
+    }
+
+    .badge-en-cours {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .badge-terminee {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .badge-annulee {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .articles-table {
+        width: 100%;
+        color: var(--gris-texte);
+        margin-top: 1rem;
+    }
+
+        .articles-table thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .articles-table th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+            text-align: left;
+        }
+
+        .articles-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+        }
+
+        .articles-table tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .total-row {
+        background: rgba(232, 152, 154, 0.1);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+        .total-row td {
+            padding: 1.5rem 1rem;
+            border-top: 2px solid var(--rose);
+            color: var(--rose);
+        }
+
+    .btn-back {
+        background: transparent;
+        color: var(--rose);
+        border: 2px solid var(--rose);
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-back:hover {
+            background: var(--rose);
+            color: var(--blanc);
+        }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .title {
+        font-family: 'Playfair Display', serif;
+        color: var(--lilas);
+        font-size: 2rem;
+    }
+</style>
+
+<div class="details-container">
+    <div class="breadcrumb-custom">
+        <a href="@Url.Action("Index", "Gateau")">Accueil</a> /
+        <a href="@Url.Action("Index", "MesCommandes")">Mes Commandes</a> /
+        Commande #@Model.Id
+    </div>
+
+    <div class="header-section">
+        <h1 class="title">Commande #@Model.Id</h1>
+        @{
+            var badgeClass = "";
+            if (Model.Statut == "En cours")
+                badgeClass = "badge-en-cours";
+            else if (Model.Statut == "Terminée")
+                badgeClass = "badge-terminee";
+            else
+                badgeClass = "badge-annulee";
+        }
+        <span class="badge-status @badgeClass">@Model.Statut</span>
+    </div>
+
+    <!-- Informations Générales -->
+    <div class="details-card">
+        <h2 class="section-title">Informations Générales</h2>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-calendar3"></i> Date de Commande</span>
+                <span class="info-value">@Model.DateCommande.ToString("dd/MM/yyyy à HH:mm")</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-currency-dollar"></i> Montant Total</span>
+                <span class="info-value">@Model.MontantTotal.ToString("N2") DH</span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-hourglass-split"></i> Statut</span>
+                <span style="margin-top: 0.3rem;">
+                    <span class="badge-status @badgeClass">@Model.Statut</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations Client -->
+    <div class="details-card">
+        <h2 class="section-title">Vos Informations</h2>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-person"></i> Nom Complet</span>
+                <span class="info-value">@Model.ClientPrenom @Model.ClientNom</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-envelope"></i> Email</span>
+                <span class="info-value">@Model.ClientEmail</span>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-item">
+                <span class="info-label"><i class="bi bi-telephone"></i> Téléphone</span>
+                <span class="info-value">@Model.ClientTelephone</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles Commandés -->
+    <div class="details-card">
+        <h2 class="section-title">Articles Commandés</h2>
+
+        @if (Model.Articles.Count > 0)
+        {
+            <table class="articles-table">
+                <thead>
+                    <tr>
+                        <th>Gâteau</th>
+                        <th>Portions</th>
+                        <th>Quantité</th>
+                        <th>Prix Unitaire</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var article in Model.Articles)
+                    {
+                        var total = article.PrixUnitaire * article.Quantite;
+                        <tr>
+                            <td><strong>@article.NomGateau</strong></td>
+                            <td>@article.NombrePersonnes portions</td>
+                            <td>@article.Quantite</td>
+                            <td>@article.PrixUnitaire.ToString("N2") DH</td>
+                            <td><strong>@total.ToString("N2") DH</strong></td>
+                        </tr>
+                    }
+                    <tr class="total-row">
+                        <td colspan="4" style="text-align: right;">MONTANT TOTAL :</td>
+                        <td>@Model.MontantTotal.ToString("N2") DH</td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p style="color: var(--gris-texte); text-align: center; padding: 2rem;">
+                Aucun article dans cette commande
+            </p>
+        }
+    </div>
+
+    <!-- Bouton Retour -->
+    <a href="@Url.Action("Index", "MesCommandes")" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Retour à l'Historique
+    </a>
+</div>

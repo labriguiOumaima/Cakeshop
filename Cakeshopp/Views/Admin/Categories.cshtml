@@ -1,0 +1,515 @@
+@model List<project.Models.CustomCategory>
+
+@{
+    ViewData["Title"] = "Categories Custom";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .page-header {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--lilas);
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-add {
+        background: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            background: #d97b7d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(232, 152, 154, 0.3);
+        }
+
+    .table-container {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        overflow-x: auto;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gris-texte);
+        margin-top: 1rem;
+    }
+
+        .table-custom thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        margin: 0 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+        .btn-edit:hover {
+            background: #007bff;
+            color: white;
+        }
+
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    .modal-content {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        color: var(--gris-texte);
+    }
+
+    .modal-header {
+        border-bottom: 2px solid var(--lilas);
+        background: rgba(232, 152, 154, 0.08);
+    }
+
+    .modal-title {
+        color: var(--lilas);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .form-control {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+        .form-control:focus {
+            background: var(--blanc);
+            border-color: var(--rose);
+            color: var(--gris-texte);
+            box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+        }
+
+    .form-label {
+        color: var(--lilas);
+        font-weight: 500;
+    }
+
+    .btn-close-white {
+        filter: invert(1);
+    }
+
+    .btn-secondary {
+        background-color: var(--lilas);
+        border-color: var(--lilas);
+        color: var(--blanc);
+    }
+
+        .btn-secondary:hover {
+            background-color: #b8a8ce;
+            border-color: #b8a8ce;
+        }
+</style>
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">Gestion des Catégories Custom</h1>
+            <p style="color: var(--gris-texte); margin: 0;">Gérer les catégories pour les gâteaux custom</p>
+        </div>
+        <button class="btn-add" onclick="ouvrirModalCreer()">
+            <i class="bi bi-plus-circle"></i> Ajouter une catégorie
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var categorie in Model)
+            {
+                <tr>
+                    <td><strong>#@categorie.Id</strong></td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(categorie.ImagePath))
+                        {
+                            <img src="@categorie.ImagePath" alt="@categorie.Nom" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid var(--lilas);" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 60px; height: 60px; background: rgba(232, 152, 154, 0.1); border-radius: 8px; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--rose); opacity: 0.5;"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="width: 60px; height: 60px; background: rgba(232, 152, 154, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--rose); opacity: 0.5;"></i>
+                            </div>
+                        }
+                    </td>
+                    <td>@categorie.Nom</td>
+                    <td>@(categorie.Description?.Length > 50 ? categorie.Description.Substring(0, 50) + "..." : categorie.Description)</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="ouvrirModalModifier(@categorie.Id, '@Html.Raw((categorie.Nom ?? "").Replace("'", "\\'"))', '@Html.Raw((categorie.Description ?? "").Replace("'", "\\'"))', '@Html.Raw((categorie.ImagePath ?? "").Replace("'", "\\'"))')">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </button>
+                        <button class="btn-action btn-delete" onclick="supprimerCategorie(@categorie.Id)">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Créer/Modifier -->
+<div class="modal fade" id="modalCategorie" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Ajouter une catégorie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCategorie" enctype="multipart/form-data">
+                    <input type="hidden" id="categorieId" />
+                    <div class="mb-3">
+                        <label class="form-label">Sélectionner une catégorie existante ou créer une nouvelle</label>
+                        <select class="form-control" id="categorieSelect" onchange="gererSelectionCategorie()">
+                            <option value="">-- Créer une nouvelle catégorie --</option>
+                            @foreach (var categorie in Model)
+                            {
+                                <option value="@categorie.Nom" data-id="@categorie.Id" data-description="@(categorie.Description ?? "")" data-image="@(categorie.ImagePath ?? "")">@categorie.Nom</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3" id="nouvelleCategorieGroup">
+                        <label class="form-label" id="nomLabel">Nom de la nouvelle catégorie</label>
+                        <input type="text" class="form-control" id="nom" placeholder="Entrez le nom de la nouvelle catégorie" required>
+                        <small class="text-muted" id="nomHelp" style="color: var(--gris-texte); opacity: 0.7;">Vous pouvez modifier le nom si nécessaire</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3" placeholder="Description de la catégorie"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image de la catégorie</label>
+                        <input type="file" class="form-control" id="imageFile" accept="image/*" onchange="afficherApercuImageFichier()">
+                        <small class="text-muted" style="color: var(--gris-texte); opacity: 0.7; display: block; margin-top: 0.5rem;">
+                            Téléchargez une image (JPG, PNG, GIF, WebP) - Max 5MB
+                        </small>
+                        <input type="hidden" id="ImagePath">
+                    </div>
+                    <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                        <label class="form-label">Aperçu de l'image</label>
+                        <div style="border: 2px solid var(--lilas); border-radius: 8px; padding: 1rem; background: rgba(232, 152, 154, 0.05); text-align: center;">
+                            <img id="imagePreview" src="" alt="Aperçu" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;">
+                            <div id="imageError" style="display: none; color: #dc3545; padding: 1rem;">
+                                <i class="bi bi-exclamation-triangle"></i> L'image ne peut pas être chargée
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn-add" onclick="sauvegarderCategorie()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modalCategorie;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        modalCategorie = new bootstrap.Modal(document.getElementById('modalCategorie'));
+    });
+
+    function ouvrirModalCreer() {
+        document.getElementById('modalTitle').textContent = 'Ajouter une catégorie';
+        document.getElementById('formCategorie').reset();
+        document.getElementById('categorieId').value = '';
+        document.getElementById('categorieSelect').value = '';
+        document.getElementById('nouvelleCategorieGroup').style.display = 'block';
+        document.getElementById('nom').required = true;
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('imageError').style.display = 'none';
+        modalCategorie.show();
+    }
+
+    function ouvrirModalModifier(id, nom, description, ImagePath) {
+        document.getElementById('modalTitle').textContent = 'Modifier la catégorie';
+        document.getElementById('categorieId').value = id;
+        document.getElementById('categorieSelect').value = '';
+        document.getElementById('nom').value = nom;
+        document.getElementById('description').value = description || '';
+        document.getElementById('ImagePath').value = ImagePath || '';
+        document.getElementById('nouvelleCategorieGroup').style.display = 'block';
+        document.getElementById('nom').required = true;
+
+        // Afficher l'aperçu de l'image si une URL existe
+        if (ImagePath) {
+            afficherApercuImage();
+        } else {
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+        }
+
+        modalCategorie.show();
+    }
+
+    function afficherApercuImage() {
+        const ImagePath = document.getElementById('ImagePath').value.trim();
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+
+        if (!ImagePath) {
+            previewContainer.style.display = 'none';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'none';
+            return;
+        }
+
+        previewContainer.style.display = 'block';
+        preview.style.display = 'none';
+        errorDiv.style.display = 'none';
+
+        // Créer une nouvelle image pour tester le chargement
+        const testImage = new Image();
+        testImage.onload = function() {
+            preview.src = ImagePath;
+            preview.style.display = 'block';
+            errorDiv.style.display = 'none';
+        };
+        testImage.onerror = function() {
+            preview.style.display = 'none';
+            errorDiv.style.display = 'block';
+        };
+        testImage.src = ImagePath;
+    }
+
+    function afficherApercuImageFichier() {
+        const fileInput = document.getElementById('imageFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            // Si aucun fichier sélectionné, essayer de prévisualiser via ImagePath existant
+            afficherApercuImage();
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        if (file.size > 5 * 1024 * 1024) {
+            previewContainer.style.display = 'block';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = "L'image dépasse 5MB.";
+            fileInput.value = '';
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            previewContainer.style.display = 'block';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = "Veuillez sélectionner une image valide.";
+            fileInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewContainer.style.display = 'block';
+            preview.style.display = 'block';
+            errorDiv.style.display = 'none';
+            preview.src = e.target.result;
+        };
+        reader.onerror = function () {
+            previewContainer.style.display = 'block';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = "Erreur lors de la lecture du fichier.";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function gererSelectionCategorie() {
+        const select = document.getElementById('categorieSelect');
+        const selectedOption = select.options[select.selectedIndex];
+        const nouvelleCategorieGroup = document.getElementById('nouvelleCategorieGroup');
+        const nomInput = document.getElementById('nom');
+        const nomLabel = document.getElementById('nomLabel');
+        const nomHelp = document.getElementById('nomHelp');
+        const descriptionInput = document.getElementById('description');
+        const ImagePathInput = document.getElementById('ImagePath');
+        const categorieIdInput = document.getElementById('categorieId');
+
+        if (select.value === '') {
+            // Créer une nouvelle catégorie
+            nouvelleCategorieGroup.style.display = 'block';
+            nomLabel.textContent = 'Nom de la nouvelle catégorie';
+            nomInput.value = '';
+            nomInput.required = true;
+            nomInput.readOnly = false;
+            nomInput.placeholder = 'Entrez le nom de la nouvelle catégorie';
+            nomInput.style.backgroundColor = 'var(--blanc)';
+            nomHelp.textContent = 'Entrez un nom unique pour la nouvelle catégorie';
+            descriptionInput.value = '';
+            ImagePathInput.value = '';
+            categorieIdInput.value = '';
+        } else {
+            // Utiliser une catégorie existante (modification)
+            nouvelleCategorieGroup.style.display = 'block';
+            nomLabel.textContent = 'Nom de la catégorie';
+            nomInput.value = selectedOption.value;
+            nomInput.required = true;
+            nomInput.readOnly = false;
+            nomInput.placeholder = 'Nom de la catégorie sélectionnée';
+            nomInput.style.backgroundColor = 'var(--blanc)';
+            nomHelp.textContent = 'Catégorie existante sélectionnée - vous pouvez modifier le nom si nécessaire';
+            descriptionInput.value = selectedOption.getAttribute('data-description') || '';
+            ImagePathInput.value = selectedOption.getAttribute('data-image') || '';
+            categorieIdInput.value = selectedOption.getAttribute('data-id') || '';
+        }
+    }
+
+    function sauvegarderCategorie() {
+        const id = document.getElementById('categorieId').value;
+        const nom = document.getElementById('nom').value;
+
+        // Validation
+        if (!nom || nom.trim() === '') {
+            alert('Veuillez entrer un nom de catégorie');
+            return;
+        }
+
+        const description = document.getElementById('description').value;
+        const imagePath = document.getElementById('ImagePath').value;
+        const imageFile = document.getElementById('imageFile').files[0];
+
+        const formData = new FormData();
+        formData.append('id', id ? parseInt(id) : 0);
+        formData.append('nom', nom);
+        formData.append('description', description);
+        formData.append('ImagePath', imagePath);
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        }
+
+        // Si un id existe, on MODIFIE, sinon on CRÉE
+        const url = id ? '/Admin/ModifierCategorie' : '/Admin/CreerCategorie';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                modalCategorie.hide();
+                location.reload();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'enregistrement');
+        });
+    }
+
+    function supprimerCategorie(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) return;
+
+        fetch('/Admin/SupprimerCategorie', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ categorieId: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+</script>

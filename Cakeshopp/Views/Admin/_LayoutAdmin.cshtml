@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --rose: #E8989A;
+            --lilas: #D4C5E2;
+            --blanc: #FFFFFF;
+            --gris-texte: #4A4A4A;
+            --lilas-bg: #F5F0FA;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--lilas-bg) 0%, rgba(212, 197, 226, 0.05) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(232, 152, 154, 0.95) 0%, rgba(212, 197, 226, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-right: 2px solid var(--rose);
+            padding: 2rem 0;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(232, 152, 154, 0.2);
+        }
+
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: var(--blanc);
+                border-radius: 10px;
+            }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem 1.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--blanc);
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .sidebar-menu-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+            .sidebar-menu-link::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 4px;
+                background: var(--blanc);
+                transform: scaleY(0);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar-menu-link:hover,
+            .sidebar-menu-link.active {
+                background: rgba(255, 255, 255, 0.25);
+                color: var(--blanc);
+                transform: translateX(5px);
+            }
+
+                .sidebar-menu-link:hover::before,
+                .sidebar-menu-link.active::before {
+                    transform: scaleY(1);
+                }
+
+            .sidebar-menu-link i {
+                font-size: 1.3rem;
+                margin-right: 1rem;
+                width: 24px;
+                text-align: center;
+            }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(232, 152, 154, 0.8);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--blanc) 0%, var(--lilas) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--rose);
+            font-size: 1.1rem;
+        }
+
+        .admin-details {
+            flex: 1;
+        }
+
+        .admin-name {
+            color: var(--blanc);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .admin-role {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* LOGOUT BUTTON */
+        .logout-form {
+            margin: 0 !important;
+        }
+
+            .logout-form button {
+                margin: 0 !important;
+                width: 100%;
+                border: none;
+                background: none;
+                text-align: left;
+                padding: 1rem 1.25rem;
+                color: rgba(255, 255, 255, 0.85);
+                text-decoration: none;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                position: relative;
+                overflow: hidden;
+                cursor: pointer;
+                font-family: 'Poppins', sans-serif;
+                font-size: 1rem;
+            }
+
+                .logout-form button::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    height: 100%;
+                    width: 4px;
+                    background: var(--blanc);
+                    transform: scaleY(0);
+                    transition: transform 0.3s ease;
+                }
+
+                .logout-form button:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                    color: var(--blanc);
+                    transform: translateX(5px);
+                }
+
+                    .logout-form button:hover::before {
+                        transform: scaleY(1);
+                    }
+
+                .logout-form button i {
+                    font-size: 1.3rem;
+                    margin-right: 1rem;
+                    width: 24px;
+                    text-align: center;
+                }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: var(--blanc);
+            border: 2px solid var(--lilas);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--lilas);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-breadcrumb {
+            color: var(--gris-texte);
+            font-size: 0.95rem;
+        }
+
+            .page-breadcrumb a {
+                color: var(--rose);
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+                .page-breadcrumb a:hover {
+                    color: #d97b7d;
+                    text-decoration: underline;
+                }
+
+        /* RESPONSIVE */
+        @@media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+                .sidebar.active {
+                    transform: translateX(0);
+                }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">CAKE ADMIN</div>
+            <div class="sidebar-subtitle">Dashboard</div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Dashboard" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Gateaux" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Gateaux" ? "active" : "")">
+                    <i class="bi bi-cake2"></i>
+                    <span>Gateaux</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Commandes" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Commandes" ? "active" : "")">
+                    <i class="bi bi-bag-check"></i>
+                    <span>Commandes</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/DemandesCustom" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "DemandesCustom" ? "active" : "")">
+                    <i class="bi bi-palette"></i>
+                    <span>Demandes Custom</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Clients" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Clients" ? "active" : "")">
+                    <i class="bi bi-people"></i>
+                    <span>Clients</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Categories" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Categories" ? "active" : "")">
+                    <i class="bi bi-tag"></i>
+                    <span>Categories Custom</span>
+                </a>
+            </li>
+            <li class="sidebar-menu-item">
+                <a href="/Admin/Fillings" class="sidebar-menu-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Fillings" ? "active" : "")">
+                    <i class="bi bi-clipboard-check"></i>
+                    <span>Fillings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <div class="admin-avatar">
+                    @{
+                        var adminName = Context.Session.GetString("ClientPrenom") ?? "A";
+                        var initials = adminName.Substring(0, 1).ToUpper();
+                    }
+                    @initials
+                </div>
+                <div class="admin-details">
+                    <div class="admin-name">@Context.Session.GetString("ClientPrenom") @Context.Session.GetString("ClientNom")</div>
+                    <div class="admin-role">Administrateur</div>
+                </div>
+            </div>
+            <form method="post" asp-controller="Auth" asp-action="Logout" class="logout-form">
+                <button type="submit">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Deconnexion</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

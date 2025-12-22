@@ -1,0 +1,253 @@
+@model IEnumerable<project.Models.Gateau>
+@{
+    ViewData["Title"] = "Catalogue Complet";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .catalogue-card {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+        .catalogue-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--rose);
+            box-shadow: 0 20px 50px rgba(232, 152, 154, 0.25);
+        }
+
+    .catalogue-card-image {
+        width: 100%;
+        height: 250px;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(135deg, rgba(232, 152, 154, 0.08) 0%, rgba(212, 197, 226, 0.08) 100%);
+    }
+
+        .catalogue-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+    .catalogue-card:hover .catalogue-card-image img {
+        transform: scale(1.1);
+    }
+
+    .catalogue-card-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(232, 152, 154, 0.1) 0%, rgba(212, 197, 226, 0.1) 100%);
+    }
+
+    .catalogue-card-body {
+        padding: 2rem 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .catalogue-card-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--rose);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .catalogue-card-description {
+        color: var(--gris-texte);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+
+    .catalogue-card-category {
+        color: var(--lilas);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .catalogue-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 2px solid var(--lilas);
+    }
+
+    .catalogue-price {
+        color: var(--rose);
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .catalogue-button {
+        background-color: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+    }
+
+        .catalogue-button:hover {
+            background-color: #d97b7d;
+            color: var(--blanc);
+            transform: translateX(3px);
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(232, 152, 154, 0.3);
+        }
+
+    .breadcrumb {
+        background-color: rgba(232, 152, 154, 0.08) !important;
+        border-radius: 10px;
+        padding: 1rem !important;
+        margin-bottom: 2rem !important;
+        border: 1px solid var(--lilas);
+    }
+
+    .breadcrumb-item a {
+        color: var(--rose) !important;
+        transition: color 0.3s;
+    }
+
+        .breadcrumb-item a:hover {
+            color: #d97b7d !important;
+        }
+
+    .breadcrumb-item.active {
+        color: var(--gris-texte) !important;
+    }
+
+    .catalogue-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--rose);
+        font-size: 3rem;
+        font-weight: 400;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+    }
+
+    .catalogue-subtitle {
+        color: var(--gris-texte);
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+    }
+
+    .alert-warning {
+        background: rgba(232, 152, 154, 0.1) !important;
+        border: 2px solid var(--rose) !important;
+        color: var(--rose) !important;
+    }
+
+    @@media (max-width: 768px) {
+        .catalogue-card-image {
+            height: 200px;
+        }
+
+        .catalogue-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="padding: 1rem 0;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Catalogue</li>
+        </ol>
+    </nav>
+
+    <div class="text-center mb-5">
+        <h1 class="catalogue-title">NOTRE CATALOGUE COMPLET</h1>
+        <p class="catalogue-subtitle">Découvrez tous nos gâteaux artisanaux sélectionnés avec soin</p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning text-center" role="alert">
+            <h4>Aucun gâteau disponible</h4>
+            <p>Il n'y a actuellement aucun gâteau en stock. Revenez plus tard !</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var gateau in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="catalogue-card">
+                        <!-- Image -->
+                        <div class="catalogue-card-image">
+                            @if (!string.IsNullOrEmpty(gateau.ImagePath))
+                            {
+                                <img src="@Url.Content("~/images/gateaux/" + gateau.ImagePath)"
+                                     alt="@gateau.Nom"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="catalogue-card-placeholder" style="display: none;">
+                                    <i class="bi bi-image" style="font-size: 3rem; color: var(--rose); opacity: 0.3;"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="catalogue-card-placeholder">
+                                    <i class="bi bi-image" style="font-size: 3rem; color: var(--rose); opacity: 0.3;"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Contenu -->
+                        <div class="catalogue-card-body">
+                            <h5 class="catalogue-card-title">@gateau.Nom</h5>
+                            <p class="catalogue-card-description">@gateau.Description</p>
+                            <p class="catalogue-card-category">
+                                <i class="bi bi-tag"></i> @gateau.Categorie
+                            </p>
+
+                            <!-- Footer avec prix et bouton -->
+                            <div class="catalogue-card-footer">
+                                <span class="catalogue-price">@gateau.Prix.ToString("N2") DH</span>
+                                <a asp-controller="Gateau" asp-action="Details" asp-route-id="@gateau.Id" class="catalogue-button">
+                                    Détails <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

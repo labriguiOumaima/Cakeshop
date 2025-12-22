@@ -1,0 +1,560 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Cake Shop</title>
+
+    <!-- Bootstrap et icons depuis CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --rose: #E8989A; /* Rose girly */
+            --lilas: #D4C5E2; /* Lilas clair */
+            --blanc: #FFFFFF; /* Blanc */
+            --gris-texte: #4A4A4A; /* Gris foncé pour textes */
+            --lilas-bg: #F5F0FA; /* Lilas très clair pour background */
+        }
+
+        body {
+            background-color: var(--lilas-bg);
+            color: var(--gris-texte);
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: var(--blanc) !important;
+            border-bottom: 3px solid var(--rose);
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 12px rgba(232, 152, 154, 0.15);
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--rose) !important;
+            letter-spacing: 2px;
+        }
+
+        .nav-link {
+            color: var(--gris-texte) !important;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem !important;
+        }
+
+            .nav-link:hover {
+                color: var(--rose) !important;
+                font-weight: 600;
+            }
+
+        .btn-outline-light {
+            border-color: var(--rose);
+            color: var(--rose);
+            border-width: 2px;
+        }
+
+            .btn-outline-light:hover {
+                background-color: var(--rose);
+                color: var(--blanc);
+                border-color: var(--rose);
+            }
+
+        main {
+            background-color: var(--lilas-bg);
+            min-height: calc(100vh - 200px);
+            padding-top: 2rem;
+        }
+
+        .container {
+            color: var(--gris-texte);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            color: var(--rose);
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--blanc);
+            border: 2px solid var(--lilas);
+            transition: all 0.3s;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(212, 197, 226, 0.2);
+        }
+
+            .card:hover {
+                transform: translateY(-8px);
+                border-color: var(--rose);
+                box-shadow: 0 8px 20px rgba(232, 152, 154, 0.25);
+            }
+
+        .card-title {
+            color: var(--rose);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+        }
+
+        .card-text {
+            color: var(--gris-texte);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-primary {
+            background-color: var(--rose);
+            border-color: var(--rose);
+            color: var(--blanc);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+            .btn-primary:hover {
+                background-color: #d97b7d;
+                border-color: #d97b7d;
+                color: var(--blanc);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(232, 152, 154, 0.4);
+            }
+
+        .price {
+            font-size: 1.8rem;
+            color: var(--rose);
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        footer {
+            background-color: var(--lilas) !important;
+            border-top: 3px solid var(--rose) !important;
+            color: var(--gris-texte) !important;
+            margin-top: 3rem;
+        }
+
+        .form-control {
+            background-color: var(--blanc);
+            border: 2px solid var(--lilas);
+            color: var(--gris-texte);
+            transition: all 0.3s;
+        }
+
+            .form-control:focus {
+                background-color: var(--blanc);
+                border-color: var(--rose);
+                color: var(--gris-texte);
+                box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+            }
+
+        .form-label {
+            color: var(--gris-texte);
+            font-weight: 500;
+        }
+
+        .modal-content {
+            background-color: var(--blanc);
+            color: var(--gris-texte);
+            border: 2px solid var(--rose);
+            box-shadow: 0 10px 30px rgba(232, 152, 154, 0.2);
+        }
+
+        .modal-header {
+            border-bottom: 2px solid var(--lilas);
+            background: linear-gradient(135deg, rgba(232, 152, 154, 0.05) 0%, rgba(212, 197, 226, 0.05) 100%);
+        }
+
+        .modal-title {
+            color: var(--rose);
+            font-weight: 600;
+        }
+
+        .btn-close {
+            filter: brightness(0) saturate(100%) invert(45%) sepia(32%) saturate(683%) hue-rotate(330deg) brightness(98%) contrast(88%);
+        }
+
+        .modal-link {
+            color: var(--rose);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+            .modal-link:hover {
+                color: #d97b7d;
+                text-decoration: underline;
+            }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 2px solid #dc3545;
+            color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand" href="/Gateau" style="line-height: 1.2;">
+                    <div style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--rose); letter-spacing: 2px;">CAKE SHOP</div>
+                    <div style="font-size: 0.6rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; font-family: 'Montserrat', sans-serif; margin-top: -5px; color: var(--lilas);">GÂTEAUX SUR MESURE</div>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "Custom")">Custom Made</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Gateau/Catalogue">Shop</a>
+                        </li>
+
+                        <!-- BOUTON MES COMMANDES - VISIBLE SEULEMENT SI CONNECTÉ -->
+                        @if (Context.Session.GetString("ClientEmail") != null)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Index", "MesCommandes")">
+                                    <i class="bi bi-receipt"></i> Mes Commandes
+                                </a>
+                            </li>
+                        }
+
+                        @if (Context.Session.GetString("ClientEmail") != null)
+                        {
+                            <!-- Utilisateur CONNECTÉ -->
+                            <li class="nav-item">
+                                <span class="nav-link" style="color: var(--rose) !important; cursor: default;">
+                                    <i class="bi bi-person-circle"></i> @Context.Session.GetString("ClientPrenom") @Context.Session.GetString("ClientNom")
+                                </span>
+                            </li>
+                            <li class="nav-item ms-2">
+                                <form asp-controller="Auth" asp-action="Logout" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-light btn-sm">
+                                        <i class="bi bi-box-arrow-right"></i> Déconnexion
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Utilisateur NON connecté -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Connexion</a>
+                            </li>
+                            <li class="nav-item ms-3">
+                                <a class="nav-link btn btn-outline-light btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">S'inscrire</a>
+                            </li>
+                        }
+
+                        <!-- Icône Panier AVEC badge compteur -->
+                        <li class="nav-item ms-2">
+                            <a class="nav-link position-relative" asp-controller="Panier" asp-action="Index" style="font-size: 1.2rem; color: var(--rose) !important;">
+                                <i class="bi bi-bag"></i>
+                                @{
+                                    var panierCount = Context.Session.GetString("PanierCount");
+                                    var count = !string.IsNullOrEmpty(panierCount) ? int.Parse(panierCount) : 0;
+                                }
+                                <span id="panierCount"
+                                      data-panier-count="true"
+                                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger @(count > 0 ? "" : "d-none")"
+                                      style="font-size: 0.7rem;">
+                                    @(count > 0 ? count : 0)
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Cake Shop - Tous droits réservés</p>
+        </div>
+    </footer>
+
+    <!-- Modal Connexion -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Connexion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" name="Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="loginPassword" name="Password" required minlength="6">
+                        </div>
+                        <div id="loginError" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0" style="color: var(--gris-texte);">
+                            Pas encore de compte ?
+                            <a href="#" class="modal-link" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">S'inscrire</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Inscription -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">S'inscrire</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="registerNom" class="form-label">Nom</label>
+                            <input type="text" class="form-control" id="registerNom" name="Nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPrenom" class="form-label">Prénom</label>
+                            <input type="text" class="form-control" id="registerPrenom" name="Prenom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" name="Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="registerPassword" name="Password" required minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerTelephone" class="form-label">Téléphone</label>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="registerTelephone"
+                                   name="Telephone"
+                                   pattern="[0-9]{10}"
+                                   title="Veuillez entrer exactement 10 chiffres"
+                                   maxlength="10"
+                                   placeholder="0612345678"
+                                   required>
+                        </div>
+                        <div id="registerError" class="alert alert-danger d-none"></div>
+                        <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0" style="color: var(--gris-texte);">
+                            Déjà un compte ?
+                            <a href="#" class="modal-link" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Se connecter</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS depuis CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script personnalisé pour gérer les formulaires -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Validation téléphone en temps réel - accepte uniquement des chiffres
+            const phoneInput = document.getElementById('registerTelephone');
+
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function (e) {
+                    // Supprimer tout ce qui n'est pas un chiffre
+                    this.value = this.value.replace(/[^0-9]/g, '');
+
+                    // Limiter à 10 chiffres maximum
+                    if (this.value.length > 10) {
+                        this.value = this.value.slice(0, 10);
+                    }
+                });
+            }
+
+            // Gestion du formulaire de connexion
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const formData = {
+                        Email: document.getElementById('loginEmail').value,
+                        Mdp: document.getElementById('loginPassword').value
+                    };
+
+                    try {
+                        const response = await fetch('/Auth/Login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            // Fermer le modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                            modal.hide();
+
+                            // Rediriger vers le dashboard admin si c'est un admin
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                // Recharger la page pour les clients normaux
+                                window.location.reload();
+                            }
+                        } else {
+                            // Erreur - afficher le message
+                            const error = await response.text();
+                            document.getElementById('loginError').textContent = error || 'Email ou mot de passe incorrect';
+                            document.getElementById('loginError').classList.remove('d-none');
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        document.getElementById('loginError').textContent = 'Erreur de connexion. Veuillez réessayer.';
+                        document.getElementById('loginError').classList.remove('d-none');
+                    }
+                });
+            }
+
+            // Gestion du formulaire d'inscription
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const formData = {
+                        Nom: document.getElementById('registerNom').value,
+                        Prenom: document.getElementById('registerPrenom').value,
+                        Email: document.getElementById('registerEmail').value,
+                        Mdp: document.getElementById('registerPassword').value,
+                        Telephone: document.getElementById('registerTelephone').value
+                    };
+
+                    try {
+                        const response = await fetch('/Auth/Register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        if (response.ok) {
+                            // Succès - fermer le modal d'inscription
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                            modal.hide();
+
+                            // Afficher un message de succès
+                            alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+
+                            // Ouvrir le modal de connexion
+                            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                            loginModal.show();
+                        } else {
+                            // Erreur - afficher le message
+                            const error = await response.text();
+                            document.getElementById('registerError').textContent = error || 'Erreur lors de l\'inscription';
+                            document.getElementById('registerError').classList.remove('d-none');
+                        }
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        document.getElementById('registerError').textContent = 'Erreur de connexion. Veuillez réessayer.';
+                        document.getElementById('registerError').classList.remove('d-none');
+                    }
+                });
+            }
+
+            // Réinitialiser les messages d'erreur quand on ouvre un modal
+            document.getElementById('loginModal').addEventListener('show.bs.modal', function () {
+                document.getElementById('loginError').classList.add('d-none');
+                document.getElementById('loginForm').reset();
+            });
+
+            document.getElementById('registerModal').addEventListener('show.bs.modal', function () {
+                document.getElementById('registerError').classList.add('d-none');
+                document.getElementById('registerForm').reset();
+            });
+        });
+    </script>
+
+    <!-- Notification Toast en bas à droite -->
+    @if (TempData["Success"] != null && TempData["GateauNom"] != null)
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+            <div id="successToast" class="toast show" role="alert">
+                <div class="toast-header" style="background-color: var(--rose); color: var(--blanc);">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong class="me-auto">Succès</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body" style="background-color: var(--lilas); color: var(--gris-texte); border: 2px solid var(--rose);">
+                    <strong>@TempData["GateauNom"]</strong> a été ajouté au panier !
+                </div>
+            </div>
+        </div>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('successToast');
+                if (toast) toast.classList.remove('show');
+            }, 5000);
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+            <div id="errorToast" class="toast show" role="alert">
+                <div class="toast-header" style="background-color: #dc3545; color: white;">
+                    <i class="bi bi-x-circle-fill me-2"></i>
+                    <strong class="me-auto">Erreur</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body" style="background-color: var(--lilas); color: var(--gris-texte); border: 2px solid #dc3545;">
+                    @TempData["Error"]
+                </div>
+            </div>
+        </div>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('errorToast');
+                if (toast) toast.classList.remove('show');
+            }, 5000);
+        </script>
+    }
+</body>
+</html>

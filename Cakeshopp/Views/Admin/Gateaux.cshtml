@@ -1,0 +1,579 @@
+@model List<project.Models.Gateau>
+
+@{
+    ViewData["Title"] = "Gâteaux";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+
+    // Fonction helper pour formater les prix en DH
+    string FormatPrix(decimal prix)
+    {
+        return prix.ToString("N2") + " DH";
+    }
+}
+
+<style>
+    .page-header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, var(--gold) 0%, #f0d98d 100%);
+        color: var(--teal-dark);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+    .table-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(212, 175, 55, 0.3);
+        border-radius: 15px;
+        padding: 2rem;
+        overflow-x: auto;
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gold-light);
+        margin-top: 1rem;
+    }
+
+        .table-custom thead {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        margin: 0 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+        .btn-edit:hover {
+            background: #007bff;
+            color: white;
+        }
+
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    .modal-content {
+        background: linear-gradient(135deg, #0f343a 0%, #1a4f57 100%);
+        border: 2px solid rgba(212, 175, 55, 0.3);
+        border-radius: 15px;
+        color: var(--gold-light);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .modal-title {
+        color: var(--gold);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        color: var(--gold-light);
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+    .form-label {
+        color: var(--gold);
+        font-weight: 500;
+    }
+
+    .image-placeholder {
+        width: 60px;
+        height: 60px;
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 8px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">Gestion des Gâteaux</h1>
+            <p style="color: var(--gold-light); margin: 0;">Gérer tous les gâteaux du catalogue</p>
+        </div>
+        <button class="btn-add" onclick="ouvrirModalCreer()">
+            <i class="bi bi-plus-circle"></i> Ajouter un gâteau
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Catégorie</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var gateau in Model)
+            {
+                <tr>
+                    <td><strong>#@gateau.Id</strong></td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(gateau.ImagePath))
+                        {
+                            <img src="@Url.Content("~/images/gateaux/" + gateau.ImagePath)" alt="@gateau.Nom" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid rgba(212, 175, 55, 0.3);" onerror="this.style.display='none'; this.parentElement.querySelector('.image-placeholder').style.display='flex';">
+                            <div class="image-placeholder">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--gold); opacity: 0.5;"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="width: 60px; height: 60px; background: rgba(212, 175, 55, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--gold); opacity: 0.5;"></i>
+                            </div>
+                        }
+                    </td>
+                    <td>@gateau.Nom</td>
+                    <td>@(gateau.Description?.Length > 50 ? gateau.Description.Substring(0, 50) + "..." : gateau.Description)</td>
+                    <td><strong>@FormatPrix(gateau.Prix)</strong></td>
+                    <td>
+                        <span style="color: @(gateau.Stock > 0 ? "#28a745" : "#dc3545");">
+                            @gateau.Stock
+                        </span>
+                    </td>
+                    <td>@gateau.Categorie</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="ouvrirModalModifier(@gateau.Id, '@Html.Raw(gateau.Nom.Replace("'", "\\'"))', '@Html.Raw((gateau.Description ?? "").Replace("'", "\\'"))', @gateau.Prix, @gateau.Stock, '@Html.Raw((gateau.Categorie ?? "").Replace("'", "\\'"))', '@Html.Raw((gateau.ImagePath ?? "").Replace("'", "\\'"))')">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </button>
+                        <button class="btn-action btn-delete" onclick="supprimerGateau(@gateau.Id)">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Créer/Modifier -->
+<div class="modal fade" id="modalGateau" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Ajouter un gâteau</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formGateau">
+                    <input type="hidden" id="gateauId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prix</label>
+                        <input type="number" step="0.01" class="form-control" id="prix" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stock" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sélectionner une catégorie existante ou créer une nouvelle</label>
+                        <select class="form-control" id="categorieSelect" onchange="gererSelectionCategorie()">
+                            <option value="">-- Créer une nouvelle catégorie --</option>
+                            @if (ViewBag.Categories != null)
+                            {
+                                @foreach (var categorie in ViewBag.Categories)
+                                {
+                                    <option value="@categorie">@categorie</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3" id="nouvelleCategorieGroup">
+                        <label class="form-label" id="categorieLabel">Nom de la nouvelle catégorie</label>
+                        <input type="text" class="form-control" id="categorie" placeholder="Entrez le nom de la nouvelle catégorie" required>
+                        <small class="text-muted" id="categorieHelp" style="color: var(--gold-light); opacity: 0.7;">Entrez un nom unique pour la nouvelle catégorie</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image du gâteau</label>
+                        <input type="file" class="form-control" id="imageFile" accept="image/*" onchange="afficherApercuImage()">
+                        <small class="text-muted" style="color: var(--gold-light); opacity: 0.7; display: block; margin-top: 0.5rem;">
+                            Téléchargez une image (JPG, PNG, GIF, etc.) - Max 5MB
+                        </small>
+                        <input type="hidden" id="ImagePath">
+                    </div>
+                    <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                        <label class="form-label">Aperçu de l'image</label>
+                        <div style="border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 1rem; background: rgba(255, 255, 255, 0.05); text-align: center;">
+                            <img id="imagePreview" src="" alt="Aperçu" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;">
+                            <div id="imageError" style="display: none; color: #dc3545; padding: 1rem;">
+                                <i class="bi bi-exclamation-triangle"></i> <span id="imageErrorText">L'image ne peut pas être chargée</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn-add" onclick="sauvegarderGateau()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modalGateau;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        modalGateau = new bootstrap.Modal(document.getElementById('modalGateau'));
+    });
+
+    function ouvrirModalCreer() {
+        document.getElementById('modalTitle').textContent = 'Ajouter un gâteau';
+        document.getElementById('formGateau').reset();
+        document.getElementById('gateauId').value = '';
+        document.getElementById('categorieSelect').value = '';
+        document.getElementById('nouvelleCategorieGroup').style.display = 'block';
+        document.getElementById('categorie').required = true;
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('imageError').style.display = 'none';
+        document.getElementById('imageFile').value = '';
+        document.getElementById('ImagePath').value = '';
+        modalGateau.show();
+    }
+
+    function ouvrirModalModifier(id, nom, description, prix, stock, categorie, ImagePath) {
+        document.getElementById('modalTitle').textContent = 'Modifier le gâteau';
+        document.getElementById('gateauId').value = id;
+        document.getElementById('nom').value = nom;
+        document.getElementById('description').value = description || '';
+        document.getElementById('prix').value = prix;
+        document.getElementById('stock').value = stock;
+        document.getElementById('ImagePath').value = ImagePath || '';
+        document.getElementById('imageFile').value = '';
+
+        // Gérer la catégorie
+        const categorieSelect = document.getElementById('categorieSelect');
+        const categorieInput = document.getElementById('categorie');
+        const nouvelleCategorieGroup = document.getElementById('nouvelleCategorieGroup');
+        const categorieLabel = document.getElementById('categorieLabel');
+        const categorieHelp = document.getElementById('categorieHelp');
+
+        // Vérifier si la catégorie existe dans le select
+        let categorieExists = false;
+        for (let i = 0; i < categorieSelect.options.length; i++) {
+            if (categorieSelect.options[i].value === categorie) {
+                categorieExists = true;
+                break;
+            }
+        }
+
+        if (categorieExists && categorie) {
+            categorieSelect.value = categorie;
+            nouvelleCategorieGroup.style.display = 'block';
+            categorieInput.value = categorie;
+            categorieLabel.textContent = 'Nom de la catégorie';
+            categorieHelp.textContent = 'Catégorie existante sélectionnée - vous pouvez modifier le nom si nécessaire';
+        } else {
+            categorieSelect.value = '';
+            nouvelleCategorieGroup.style.display = 'block';
+            categorieInput.value = categorie || '';
+            categorieLabel.textContent = 'Nom de la nouvelle catégorie';
+            categorieHelp.textContent = 'Entrez un nom unique pour la nouvelle catégorie';
+        }
+        categorieInput.required = true;
+
+        // Afficher l'image existante si elle existe
+        if (ImagePath) {
+            afficherImageExistante(ImagePath);
+        } else {
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+        }
+
+        modalGateau.show();
+    }
+
+    function afficherImageExistante(imagePath) {
+        const imageUrl = '/images/gateaux/' + imagePath;
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+        const errorText = document.getElementById('imageErrorText');
+
+        previewContainer.style.display = 'block';
+        preview.style.display = 'none';
+        errorDiv.style.display = 'none';
+
+        // Tester le chargement de l'image existante
+        const testImage = new Image();
+        testImage.onload = function() {
+            preview.src = imageUrl;
+            preview.style.display = 'block';
+            errorDiv.style.display = 'none';
+        };
+        testImage.onerror = function() {
+            preview.style.display = 'none';
+            errorText.textContent = 'L\'image existante ne peut pas être chargée';
+            errorDiv.style.display = 'block';
+        };
+        testImage.src = imageUrl;
+    }
+
+    function afficherApercuImage() {
+        const fileInput = document.getElementById('imageFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+        const errorText = document.getElementById('imageErrorText');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            previewContainer.style.display = 'none';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'none';
+            document.getElementById('ImagePath').value = '';
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        // Vérifier la taille (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            errorText.textContent = 'L\'image dépasse 5MB. Veuillez choisir une image plus petite.';
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+            fileInput.value = '';
+            return;
+        }
+
+        // Vérifier le type de fichier
+        if (!file.type.startsWith('image/')) {
+            errorText.textContent = 'Veuillez sélectionner une image valide (JPG, PNG, GIF, etc.)';
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+            fileInput.value = '';
+            return;
+        }
+
+        // Lire et afficher l'aperçu
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            errorDiv.style.display = 'none';
+            previewContainer.style.display = 'block';
+            document.getElementById('ImagePath').value = file.name;
+        };
+        reader.onerror = function() {
+            errorText.textContent = 'Erreur lors de la lecture du fichier.';
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function gererSelectionCategorie() {
+        const select = document.getElementById('categorieSelect');
+        const categorieInput = document.getElementById('categorie');
+        const nouvelleCategorieGroup = document.getElementById('nouvelleCategorieGroup');
+        const categorieLabel = document.getElementById('categorieLabel');
+        const categorieHelp = document.getElementById('categorieHelp');
+
+        if (select.value === '') {
+            // Créer une nouvelle catégorie
+            nouvelleCategorieGroup.style.display = 'block';
+            categorieLabel.textContent = 'Nom de la nouvelle catégorie';
+            categorieInput.value = '';
+            categorieInput.required = true;
+            categorieInput.placeholder = 'Entrez le nom de la nouvelle catégorie';
+            categorieInput.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            categorieHelp.textContent = 'Entrez un nom unique pour la nouvelle catégorie';
+        } else {
+            // Utiliser une catégorie existante
+            nouvelleCategorieGroup.style.display = 'block';
+            categorieLabel.textContent = 'Nom de la catégorie';
+            categorieInput.value = select.value;
+            categorieInput.required = true;
+            categorieInput.placeholder = 'Nom de la catégorie sélectionnée';
+            categorieInput.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            categorieHelp.textContent = 'Catégorie existante sélectionnée - vous pouvez modifier le nom si nécessaire';
+        }
+    }
+
+    function sauvegarderGateau() {
+        const id = document.getElementById('gateauId').value;
+        const nom = document.getElementById('nom').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const prixStr = document.getElementById('prix').value.trim();
+        const stockStr = document.getElementById('stock').value.trim();
+        const categorie = document.getElementById('categorie').value.trim();
+        const imageFile = document.getElementById('imageFile').files[0];
+
+        // Validation des champs obligatoires
+        if (!nom) {
+            alert('Veuillez entrer le nom du gâteau');
+            return;
+        }
+
+        if (!prixStr || isNaN(parseFloat(prixStr))) {
+            alert('Veuillez entrer un prix valide');
+            return;
+        }
+
+        if (!stockStr || isNaN(parseInt(stockStr))) {
+            alert('Veuillez entrer un stock valide');
+            return;
+        }
+
+        if (!categorie) {
+            alert('Veuillez entrer ou sélectionner une catégorie');
+            return;
+        }
+
+        // Convertir les nombres en toute sécurité
+        const prix = parseFloat(prixStr);
+        const stock = parseInt(stockStr);
+
+        // Créer FormData pour envoyer l'image
+        const formData = new FormData();
+        formData.append('id', id ? parseInt(id) : 0);
+        formData.append('nom', nom);
+        formData.append('description', description);
+        formData.append('prix', prix);
+        formData.append('stock', stock);
+        formData.append('categorie', categorie);
+
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        } else {
+            formData.append('ImagePath', document.getElementById('ImagePath').value);
+        }
+
+        const url = id ? '/Admin/ModifierGateau' : '/Admin/CreerGateau';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                modalGateau.hide();
+                location.reload();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'enregistrement');
+        });
+    }
+
+    function supprimerGateau(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce gâteau ?')) return;
+
+        fetch('/Admin/SupprimerGateau', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ gateauId: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+</script>

@@ -1,0 +1,254 @@
+﻿@{
+    ViewData["Title"] = "Mes Commandes";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, rgba(232, 152, 154, 0.08), rgba(212, 197, 226, 0.08));
+        border-bottom: 2px solid var(--lilas);
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+    }
+
+    .commandes-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .commande-card {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+        .commande-card:hover {
+            background: var(--blanc);
+            border-color: var(--rose);
+            box-shadow: 0 8px 25px rgba(232, 152, 154, 0.2);
+        }
+
+    .commande-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--lilas);
+    }
+
+    .commande-id {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--rose);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .commande-date {
+        color: var(--gris-texte);
+        font-size: 0.9rem;
+    }
+
+    .badge-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-en-cours {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .badge-terminee {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .badge-annulee {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .commande-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-label {
+        color: var(--gris-texte);
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .info-value {
+        color: var(--rose);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .btn-details {
+        background: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-details:hover {
+            background: #d97b7d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 152, 154, 0.3);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--rose);
+        opacity: 0.3;
+        margin-bottom: 1rem;
+    }
+
+    .empty-text {
+        color: var(--gris-texte);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-shop {
+        background: var(--rose);
+        color: var(--blanc);
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+        .btn-shop:hover {
+            background: #d97b7d;
+            transform: translateY(-2px);
+        }
+
+    .breadcrumb-custom {
+        color: var(--gris-texte);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+        .breadcrumb-custom a {
+            color: var(--rose);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+            .breadcrumb-custom a:hover {
+                color: #d97b7d;
+            }
+</style>
+
+<div class="hero-section">
+    <div class="commandes-container">
+        <div class="breadcrumb-custom">
+            <a href="@Url.Action("Index", "Gateau")">Accueil</a> / Mes Commandes
+        </div>
+        <h1 style="font-family: 'Playfair Display', serif; color: var(--lilas); font-size: 2.5rem; margin-bottom: 0.5rem;">
+            Historique de mes Commandes
+        </h1>
+        <p style="color: var(--gris-texte); font-size: 1.1rem;">
+            Consultez l'historique et le statut de toutes vos commandes
+        </p>
+    </div>
+</div>
+
+<div class="commandes-container" style="margin-bottom: 4rem;">
+    @{
+        var commandesList = ViewBag.Commandes as List<dynamic>;
+        var hasCommandes = commandesList != null && commandesList.Count > 0;
+    }
+
+    @if (hasCommandes)
+    {
+        @foreach (var cmd in commandesList)
+        {
+            var badgeClass = "";
+            if (cmd.Statut == "En cours")
+                badgeClass = "badge-en-cours";
+            else if (cmd.Statut == "Terminée")
+                badgeClass = "badge-terminee";
+            else
+                badgeClass = "badge-annulee";
+
+            <div class="commande-card">
+                <div class="commande-header">
+                    <div>
+                        <div class="commande-id">#@cmd.Id</div>
+                        <div class="commande-date">
+                            <i class="bi bi-calendar3"></i> @cmd.Date.ToString("dd/MM/yyyy à HH:mm")
+                        </div>
+                    </div>
+                    <span class="badge-status @badgeClass">@cmd.Statut</span>
+                </div>
+
+                <div class="commande-info">
+                    <div class="info-group">
+                        <span class="info-label">Montant Total</span>
+                        <span class="info-value">@cmd.Total.ToString("N2") DH</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <a href="@Url.Action("Details", "MesCommandes", new { id = cmd.Id })" class="btn-details">
+                            <i class="bi bi-eye"></i> Voir Détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <p class="empty-text">Vous n'avez pas encore passé de commande</p>
+            <a href="@Url.Action("Index", "Gateau")" class="btn-shop">
+                <i class="bi bi-shop"></i> Découvrir nos Gâteaux
+            </a>
+        </div>
+    }
+</div>

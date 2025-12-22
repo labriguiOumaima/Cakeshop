@@ -1,0 +1,189 @@
+@model List<project.Models.CustomCategory>
+
+@{
+    ViewData["Title"] = "Custom Made";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .custom-hero {
+        padding: 3rem 0;
+        text-align: center;
+    }
+
+    .custom-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.5rem;
+        color: var(--lilas);
+        margin-bottom: 1.5rem;
+        letter-spacing: 4px;
+    }
+
+    .custom-subtitle {
+        color: var(--gris-texte);
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto 4rem;
+        line-height: 1.8;
+    }
+
+    .product-item {
+        margin-bottom: 4rem;
+    }
+
+    .product-row {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .product-image-container {
+        flex: 0 0 400px;
+    }
+
+    .product-image {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(232, 152, 154, 0.2);
+        border: 2px solid var(--lilas);
+    }
+
+    .product-content {
+        flex: 1;
+    }
+
+    .product-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--lilas);
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        font-size: 1.1rem;
+        color: var(--rose);
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .product-description {
+        color: var(--gris-texte);
+        font-size: 1.05rem;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .btn-learn-more {
+        background-color: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 8px;
+    }
+
+        .btn-learn-more:hover {
+            background-color: #d97b7d;
+            color: var(--blanc);
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(232, 152, 154, 0.3);
+        }
+
+    .breadcrumb {
+        background-color: rgba(232, 152, 154, 0.08);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--lilas);
+    }
+
+    .breadcrumb-item a {
+        color: var(--rose) !important;
+        transition: color 0.3s;
+    }
+
+        .breadcrumb-item a:hover {
+            color: #d97b7d !important;
+        }
+
+    .breadcrumb-item.active {
+        color: var(--gris-texte) !important;
+    }
+
+    @@media (max-width: 991px) {
+        .product-row {
+            flex-direction: column;
+        }
+
+        .product-image-container {
+            flex: 1;
+            width: 100%;
+        }
+
+        .custom-title {
+            font-size: 2.5rem;
+        }
+
+        .product-name {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="padding: 1rem 0;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Custom Made</li>
+        </ol>
+    </nav>
+
+    <!-- Hero -->
+    <div class="custom-hero">
+        <h1 class="custom-title">CUSTOM MADE</h1>
+        <p class="custom-subtitle">
+            Take a look at our range of signature cakes that reviews consistently confirm, offer outstanding quality in both appearance and taste
+        </p>
+    </div>
+
+    <!-- Liste dynamique des catégories -->
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var categorie in Model)
+        {
+            <div class="product-item">
+                <div class="product-row">
+                    <div class="product-image-container">
+                        <img src="@categorie.ImagePath" alt="@categorie.Nom" class="product-image" onerror="this.src='https://via.placeholder.com/400x400/F5F0FA/E8989A?text=@categorie.Nom'">
+                    </div>
+                    <div class="product-content">
+                        <h2 class="product-name">@categorie.Nom</h2>
+                        <p class="product-price">Price on request</p>
+                        <p class="product-description">@categorie.Description</p>
+                        <a href="@Url.Action("Personnaliser", "Custom", new { categorie = categorie.Nom })" class="btn-learn-more">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <p style="color: var(--gris-texte);">Aucune catégorie disponible pour le moment.</p>
+        </div>
+    }
+</div>

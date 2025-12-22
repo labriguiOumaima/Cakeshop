@@ -1,0 +1,404 @@
+@{
+    ViewData["Title"] = "Demandes Custom";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .table-container {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        overflow-x: auto;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gris-texte);
+        margin-top: 1rem;
+    }
+
+        .table-custom thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .badge-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .badge-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .badge-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .btn-action {
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .btn-price {
+        background: var(--rose);
+        color: var(--blanc);
+        border: none;
+    }
+
+        .btn-price:hover {
+            background: #d97b7d;
+            color: var(--blanc);
+        }
+
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+
+        .filter-select:focus {
+            border-color: var(--rose);
+            outline: none;
+        }
+
+    .modal-content {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+    }
+
+    .modal-header {
+        border-bottom: 2px solid var(--lilas);
+        background: rgba(232, 152, 154, 0.08);
+    }
+
+    .modal-title {
+        color: var(--lilas);
+    }
+
+    .form-label {
+        color: var(--lilas);
+        font-weight: 500;
+    }
+
+    .form-control {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        border-radius: 8px;
+    }
+
+    .form-control:focus {
+        border-color: var(--rose);
+        box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <h1 class="page-title">Demandes Custom</h1>
+    <p class="page-breadcrumb">
+        <a href="@Url.Action("Dashboard", "Admin")">Admin</a> / Demandes Custom
+    </p>
+</div>
+
+<!-- Filtres -->
+<div class="filter-bar">
+    <select class="filter-select" id="filterStatut" onchange="filterTable()">
+        <option value="">Tous les statuts</option>
+        <option value="En attente de prix">En attente de prix</option>
+        <option value="Prix défini-EN COURS">Prix défini-EN COURS</option>
+        <option value="Confirme">Confirme</option>
+    </select>
+
+    <select class="filter-select" id="filterCategorie" onchange="filterTable()">
+        <option value="">Toutes les categories</option>
+        <option value="Cake">Cake</option>
+        <option value="Cupcakes">Cupcakes</option>
+        <option value="Cookies">Cookies</option>
+        <option value="Bento Cake">Bento Cake</option>
+    </select>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+    <table class="table-custom" id="demandesTable">
+        <thead>
+            <tr>
+                <th>#ID</th>
+                <th>Client</th>
+                <th>Email</th>
+                <th>Telephone</th>
+                <th>Categorie</th>
+                <th>Sponge/Filling</th>
+                <th>Quantite</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Prix</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.Demandes != null)
+            {
+                @foreach (var demande in ViewBag.Demandes)
+                {
+            <tr data-statut="@demande.Statut" data-categorie="@demande.Categorie" data-demande-id="@demande.Id">
+                <td><strong>#@demande.Id</strong></td>
+                <td>@demande.ClientPrenom @demande.ClientNom</td>
+                <td>@demande.ClientEmail</td>
+                <td>@demande.ClientTelephone</td>
+                <td><strong>@demande.Categorie</strong></td>
+                <td>@demande.SpongeFilling</td>
+                <td><strong>@demande.Quantite</strong></td>
+                <td>
+                    @if (!string.IsNullOrEmpty(demande.Message))
+                        {
+                    <span title="@demande.Message">
+                        @(demande.Message.Length > 30 ? demande.Message.Substring(0, 30) + "..." : demande.Message)
+                    </span>
+                        }
+                        else
+                        {
+                    <em style="opacity: 0.5;">Aucun message</em>
+                        }
+                </td>
+                <td>@demande.DateCreation.ToString("dd/MM/yyyy")</td>
+                <td>
+                    @if (demande.Statut == "En attente de prix")
+                        {
+                    <span class="badge-status badge-pending">@demande.Statut</span>
+                        }
+                        else
+                        {
+                    <span class="badge-status badge-completed">@demande.Statut</span>
+                        }
+                </td>
+                <td style="text-align: center;">
+                    <span class="prix-cell" style="color: var(--rose); font-weight: 600; font-size: 1.1rem;">
+                        @if (demande.Prix > 0)
+                        {
+                            @demande.Prix.ToString("F2") <span style="color: var(--gris-texte);">DH</span>
+                        }
+                        else
+                        {
+                            <span style="opacity: 0.5;">-</span>
+                        }
+                    </span>
+                </td>
+                <td style="white-space: nowrap;">
+                    @if (demande.Statut == "En attente de prix")
+                        {
+                    <button class="btn btn-action btn-price" onclick="ouvrirModalPrix(@demande.Id)">
+                        <i class="bi bi-currency-dollar"></i> Définir Prix
+                    </button>
+                        }
+                    <button class="btn btn-action btn-delete" onclick="supprimerDemande(@demande.Id)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    @{
+        var demandesList = ViewBag.Demandes as List<dynamic>;
+        var hasDemandes = demandesList != null && demandesList.Count > 0;
+    }
+    @if (!hasDemandes)
+    {
+    <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: var(--rose); opacity: 0.3;"></i>
+        <p style="color: var(--gris-texte); margin-top: 1rem;">Aucune demande custom pour le moment</p>
+    </div>
+    }
+</div>
+
+<!-- Modal Définir Prix -->
+<div class="modal fade" id="prixModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Définir le Prix</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="prixForm">
+                    <input type="hidden" id="demandeId" />
+                    <div class="mb-3">
+                        <label class="form-label">Prix (DH)</label>
+                        <input type="number" class="form-control" id="prixInput" step="0.01" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="background: var(--rose); border: none; color: var(--blanc);">
+                        <i class="bi bi-check-circle"></i> Confirmer le Prix
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterTable() {
+        const statutFilter = document.getElementById('filterStatut').value;
+        const categorieFilter = document.getElementById('filterCategorie').value;
+        const rows = document.querySelectorAll('#demandesTable tbody tr');
+
+        rows.forEach(row => {
+            const statut = row.dataset.statut;
+            const categorie = row.dataset.categorie;
+
+            const matchStatut = !statutFilter || statut === statutFilter;
+            const matchCategorie = !categorieFilter || categorie === categorieFilter;
+
+            row.style.display = (matchStatut && matchCategorie) ? '' : 'none';
+        });
+    }
+
+    function ouvrirModalPrix(demandeId) {
+        document.getElementById('demandeId').value = demandeId;
+        document.getElementById('prixInput').value = '';
+        const modal = new bootstrap.Modal(document.getElementById('prixModal'));
+        modal.show();
+    }
+
+    document.getElementById('prixForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const demandeId = document.getElementById('demandeId').value;
+        const prix = document.getElementById('prixInput').value;
+
+        try {
+            const response = await fetch('/Admin/DefinirPrixCustom', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ demandeId: parseInt(demandeId), prix: parseFloat(prix) })
+            });
+
+            if (response.ok) {
+                // Trouver la ligne du tableau avec cette demande
+                const row = document.querySelector(`tr[data-demande-id="${demandeId}"]`);
+                
+                if (row) {
+                    // Mettre à jour le statut (10ème colonne)
+                    const statusCell = row.querySelector('td:nth-child(10)');
+                    statusCell.innerHTML = '<span class="badge-status badge-completed">Prix défini-EN COURS</span>';
+                    
+                    // Mettre à jour le prix (11ème colonne)
+                    const prixCell = row.querySelector('td:nth-child(11)');
+                    prixCell.innerHTML = `<span class="prix-cell" style="color: var(--rose); font-weight: 600; font-size: 1.1rem;">${parseFloat(prix).toFixed(2)} <span style="color: var(--gris-texte);">DH</span></span>`;
+                    
+                    // Mettre à jour le statut du dataset
+                    row.dataset.statut = 'Prix défini-EN COURS';
+                    
+                    // Cacher le bouton "Définir Prix"
+                    const btnPrice = row.querySelector('.btn-price');
+                    if (btnPrice) {
+                        btnPrice.style.display = 'none';
+                    }
+                }
+                
+                // Fermer le modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('prixModal'));
+                modal.hide();
+                
+                alert('Prix défini avec succès !');
+            } else {
+                alert('Erreur lors de la définition du prix');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur de connexion');
+        }
+    });
+
+    function supprimerDemande(demandeId) {
+        if (!confirm('Etes-vous sur de vouloir supprimer cette demande ?')) return;
+
+        fetch('/Admin/SupprimerDemandeCustom', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ demandeId: demandeId })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Supprimer la ligne du tableau
+                const row = document.querySelector(`tr[data-demande-id="${demandeId}"]`);
+                if (row) {
+                    row.remove();
+                }
+                
+                // Vérifier s'il y a encore des lignes
+                const tbody = document.querySelector('#demandesTable tbody');
+                if (tbody.children.length === 0) {
+                    location.reload();
+                }
+                
+                alert('Demande supprimée !');
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        });
+    }
+</script>

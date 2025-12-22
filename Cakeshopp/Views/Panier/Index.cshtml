@@ -1,0 +1,347 @@
+@model List<project.Models.ArticlePanier>
+
+@{
+    ViewData["Title"] = "Mon Panier";
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+</style>
+
+<div class="container py-5">
+    <h1 class="mb-4" style="font-family: 'Playfair Display', serif; color: var(--lilas);">Mon Panier</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <!-- Panier vide -->
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x" style="font-size: 5rem; color: var(--rose); opacity: 0.5;"></i>
+            <h3 class="mt-4" style="color: var(--rose);">Votre panier est vide</h3>
+            <p style="color: var(--gris-texte); opacity: 0.8;">Ajoutez des gâteaux pour commencer votre commande !</p>
+            <a href="@Url.Action("Catalogue", "Gateau")" class="btn btn-primary mt-3">
+                <i class="bi bi-arrow-left"></i> Retour au catalogue
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Message pour articles custom -->
+        @if (Model.Any(m => m.Gateau.Categorie == "Custom"))
+        {
+            <div class="alert alert-info mb-4" style="background: rgba(232, 152, 154, 0.1); border: 2px solid var(--rose); border-radius: 10px; color: var(--rose);">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-info-circle-fill" style="font-size: 1.5rem; margin-right: 1rem; margin-top: 0.2rem;"></i>
+                    <div>
+                        <h5 style="color: var(--rose); margin-bottom: 0.5rem;">
+                            <i class="bi bi-exclamation-diamond"></i> Produit(s) personnalisé(s) détecté(s)
+                        </h5>
+                        <p style="margin-bottom: 0; color: var(--gris-texte);">
+                            Vous avez des articles personnalisés dans votre panier. <strong>Le prix de ces articles sera calculé après validation de votre commande.</strong>
+                            <br />
+                            Notre équipe vous recontactera rapidement pour finaliser les détails et le tarif de votre commande.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+        <!-- Liste des produits -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card" style="background-color: var(--blanc); border: 2px solid var(--lilas); box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color: var(--lilas); font-family: 'Playfair Display', serif;">Produits</h5>
+
+                        @foreach (var item in Model)
+                        {
+                            var prixBase = item.PrixBase;
+
+                            <div class="panier-item mb-4 pb-3" style="border-bottom: 2px solid var(--lilas);"
+                                 data-gateau-id="@item.GateauId"
+                                 data-ancien-portions="@item.NombrePersonnes"
+                                 data-prix-base="@prixBase">
+
+                                <div class="row align-items-center mb-3">
+                                    <!-- Image -->
+                                    <div class="col-md-2">
+                                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                                        {
+                                            @if (item.ImagePath.StartsWith("/images/"))
+                                            {
+                                                <!-- Le chemin est déjà complet (fillings, categories, etc) -->
+                                                <img src="@Url.Content("~" + item.ImagePath)"
+                                                     alt="@item.NomGateau"
+                                                     style="width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; border: 1px solid var(--lilas);"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            }
+                                            else
+                                            {
+                                                <!-- Le chemin est juste le nom du fichier (gateaux) -->
+                                                <img src="@Url.Content("~/images/gateaux/" + item.ImagePath)"
+                                                     alt="@item.NomGateau"
+                                                     style="width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; border: 1px solid var(--lilas);"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            }
+                                            <div style="display: none; background-color: rgba(232, 152, 154, 0.08); border-radius: 8px; padding: 10px; aspect-ratio: 1; align-items: center; justify-content: center; border: 1px solid var(--lilas);">
+                                                <i class="bi bi-image" style="font-size: 3rem; color: var(--rose); opacity: 0.3;"></i>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div style="background-color: rgba(232, 152, 154, 0.08); border-radius: 8px; padding: 10px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--lilas);">
+                                                <i class="bi bi-image" style="font-size: 3rem; color: var(--rose); opacity: 0.3;"></i>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Nom -->
+                                    <div class="col-md-4">
+                                        <h6 style="color: var(--gris-texte); font-weight: 600;">@item.NomGateau</h6>
+                                        @if (item.Gateau.Categorie == "Custom")
+                                        {
+                                            <p style="color: var(--rose); opacity: 0.9; font-size: 0.9rem; margin: 0.3rem 0 0 0;">
+                                                <i class="bi bi-star-fill" style="color: var(--rose);"></i> @item.Gateau.Description
+                                            </p>
+                                        }
+                                    </div>
+
+                                    <!-- Prix total -->
+                                    <div class="col-md-4 text-end">
+                                        <p class="item-total-price" style="color: var(--rose); font-weight: 700; font-size: 1.4rem; margin: 0; font-family: 'Playfair Display', serif;">
+                                            @string.Format("{0:N2}", item.PrixUnitaire * item.Quantite) DH
+                                        </p>
+                                    </div>
+
+                                    <!-- Supprimer -->
+                                    <div class="col-md-2 text-end">
+                                        <form asp-controller="Panier" asp-action="Retirer" method="post" style="display: inline;">
+                                            <input type="hidden" name="gateauId" value="@item.GateauId" />
+                                            <input type="hidden" name="nombrePersonnes" value="@item.NombrePersonnes" />
+                                            <button type="submit" class="btn btn-link p-0" style="color: #dc3545; transition: all 0.3s;">
+                                                <i class="bi bi-x-circle" style="font-size: 1.8rem;"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Sélecteurs -->
+                                <div class="row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-10">
+                                        <div class="row align-items-center">
+                                            <!-- Portions (seulement pour articles non-custom) -->
+                                            @if (item.Gateau.Categorie != "Custom")
+                                            {
+                                                <div class="col-md-6">
+                                                    <label style="color: var(--gris-texte); font-size: 0.9rem; margin-bottom: 0.3rem; font-weight: 500;">Portions :</label>
+                                                    <select class="form-select portions-select" style="background-color: var(--blanc); border: 2px solid var(--lilas); color: var(--gris-texte);">
+                                                        @if (item.NombrePersonnes == 6)
+                                                        {
+                                                            <option value="6" selected>6 portions (6.5")</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="6">6 portions (6.5")</option>
+                                                        }
+
+                                                        @if (item.NombrePersonnes == 10)
+                                                        {
+                                                            <option value="10" selected>10 portions (8")</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="10">10 portions (8")</option>
+                                                        }
+
+                                                        @if (item.NombrePersonnes == 15)
+                                                        {
+                                                            <option value="15" selected>15 portions (9")</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="15">15 portions (9")</option>
+                                                        }
+
+                                                        @if (item.NombrePersonnes == 20)
+                                                        {
+                                                            <option value="20" selected>20 portions (10")</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="20">20 portions (10")</option>
+                                                        }
+
+                                                        @if (item.NombrePersonnes == 30)
+                                                        {
+                                                            <option value="30" selected>30 portions (12")</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="30">30 portions (12")</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            }
+
+                                            <!-- Quantité -->
+                                            <div class="col-md-@(item.Gateau.Categorie == "Custom" ? "12" : "6")">
+                                                <label style="color: var(--gris-texte); font-size: 0.9rem; margin-bottom: 0.3rem; font-weight: 500;">Quantité :</label>
+                                                <div class="d-flex align-items-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-light btn-qty-minus" style="border: 2px solid var(--rose); color: var(--rose); background-color: transparent;">
+                                                        <i class="bi bi-dash"></i>
+                                                    </button>
+                                                    <input type="number" value="@item.Quantite" min="1" max="10" class="form-control text-center mx-2 qty-input" style="width: 60px; background-color: var(--blanc); border: 2px solid var(--lilas); color: var(--gris-texte);" />
+                                                    <button type="button" class="btn btn-sm btn-outline-light btn-qty-plus" style="border: 2px solid var(--rose); color: var(--rose); background-color: transparent;">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <a href="@Url.Action("Catalogue", "Gateau")" class="btn btn-outline-secondary mt-3" style="border: 2px solid var(--lilas); color: var(--lilas);">
+                    <i class="bi bi-arrow-left"></i> Continuer mes achats
+                </a>
+            </div>
+
+            <!-- Récapitulatif -->
+            <div class="col-lg-4">
+                <div class="card" style="background-color: var(--blanc); border: 2px solid var(--lilas); box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);">
+                    <div class="card-body">
+                        <h5 style="color: var(--lilas); font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">Récapitulatif</h5>
+
+                        <div class="d-flex justify-content-between mb-2" style="color: var(--gris-texte);">
+                            <span>Sous-total (<span id="totalArticles">@Model.Sum(p => p.Quantite)</span> articles)</span>
+                            <span id="sousTotal" style="font-weight: 600;">@string.Format("{0:N2}", Model.Sum(p => p.PrixUnitaire * p.Quantite)) DH</span>
+                        </div>
+
+                        <hr style="border-color: var(--lilas); margin: 1.5rem 0;">
+
+                        <div class="d-flex justify-content-between mb-4" style="color: var(--rose); font-size: 1.8rem; font-weight: 700; font-family: 'Playfair Display', serif;">
+                            <span>Total</span>
+                            <span id="totalGeneral">@string.Format("{0:N2}", Model.Sum(p => p.PrixUnitaire * p.Quantite)) DH</span>
+                        </div>
+
+                        <form asp-controller="Commande" asp-action="Valider" method="post" id="validerCommandeForm">
+                            <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                                <i class="bi bi-check-circle"></i> Valider la commande
+                            </button>
+                        </form>
+
+                        <p class="text-center mb-0" style="color: var(--gris-texte); font-size: 0.85rem; opacity: 0.8;">
+                            <i class="bi bi-info-circle"></i> Préavis de 24 heures requis
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fonction pour mettre à jour le panier côté serveur
+        function updatePanierServer(gateauId, ancienPortions, nouveauPortions, quantite) {
+            fetch('/Panier/MettreAJourAjax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    gateauId: gateauId,
+                    ancienNombrePersonnes: ancienPortions,
+                    nombrePersonnes: nouveauPortions,
+                    quantite: quantite
+                })
+            });
+        }
+
+        // Recalculer les prix
+        function recalculerPrix() {
+            let totalGeneral = 0;
+            let totalArticles = 0;
+
+            document.querySelectorAll('.panier-item').forEach(item => {
+                const prixBase = parseFloat(item.dataset.prixBase);
+                const portions = parseInt(item.querySelector('.portions-select').value);
+                const quantite = parseInt(item.querySelector('.qty-input').value);
+
+                const ratios = {
+                    6: 1,
+                    10: 1.6,
+                    15: 2.4,
+                    20: 3.2,
+                    30: 4.8
+                };
+                const prixUnitaire = prixBase * (ratios[portions] || portions / 6);
+                const prixTotal = prixUnitaire * quantite;
+
+                item.querySelector('.item-total-price').textContent = prixTotal.toFixed(2) + ' DH';
+
+                totalGeneral += prixTotal;
+                totalArticles += quantite;
+            });
+
+            document.getElementById('sousTotal').textContent = totalGeneral.toFixed(2) + ' DH';
+            document.getElementById('totalGeneral').textContent = totalGeneral.toFixed(2) + ' DH';
+            document.getElementById('totalArticles').textContent = totalArticles;
+        }
+
+        // Gestion changement portions
+        document.querySelectorAll('.portions-select').forEach(select => {
+            select.addEventListener('change', function () {
+                const item = this.closest('.panier-item');
+                const gateauId = parseInt(item.dataset.gateauId);
+                const ancienPortions = parseInt(item.dataset.ancienPortions);
+                const nouveauPortions = parseInt(this.value);
+                const quantite = parseInt(item.querySelector('.qty-input').value);
+
+                item.dataset.ancienPortions = nouveauPortions;
+                recalculerPrix();
+                updatePanierServer(gateauId, ancienPortions, nouveauPortions, quantite);
+            });
+        });
+
+        // Gestion changement quantité
+        document.querySelectorAll('.qty-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const item = this.closest('.panier-item');
+                const gateauId = parseInt(item.dataset.gateauId);
+                const portions = parseInt(item.querySelector('.portions-select').value);
+                const quantite = parseInt(this.value);
+
+                recalculerPrix();
+                updatePanierServer(gateauId, portions, portions, quantite);
+            });
+        });
+
+        // Boutons + et -
+        document.querySelectorAll('.btn-qty-minus').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('.qty-input');
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-qty-plus').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('.qty-input');
+                if (parseInt(input.value) < 10) {
+                    input.value = parseInt(input.value) + 1;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,486 @@
+@model List<project.Models.SpongeFilling>
+
+@{
+    ViewData["Title"] = "Fillings";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+
+    // Fonction helper pour formater les prix en DH
+    string FormatPrix(decimal prix)
+    {
+        return prix.ToString("N2") + " DH";
+    }
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .page-header {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: var(--lilas);
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-add {
+        background: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            background: #d97b7d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(232, 152, 154, 0.3);
+        }
+
+    .table-container {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        overflow-x: auto;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gris-texte);
+        margin-top: 1rem;
+    }
+
+        .table-custom thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+            white-space: nowrap;
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        margin: 0 0.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+        .btn-edit:hover {
+            background: #007bff;
+            color: white;
+        }
+
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+    .modal-content {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        color: var(--gris-texte);
+    }
+
+    .modal-header {
+        border-bottom: 2px solid var(--lilas);
+        background: rgba(232, 152, 154, 0.08);
+    }
+
+    .modal-title {
+        color: var(--lilas);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .form-control {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+        .form-control:focus {
+            background: var(--blanc);
+            border-color: var(--rose);
+            color: var(--gris-texte);
+            box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+        }
+
+    .form-label {
+        color: var(--lilas);
+        font-weight: 500;
+    }
+
+    .btn-secondary {
+        background-color: var(--lilas);
+        border-color: var(--lilas);
+        color: var(--blanc);
+    }
+
+        .btn-secondary:hover {
+            background-color: #b8a8ce;
+            border-color: #b8a8ce;
+        }
+</style>
+
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">Gestion des Fillings</h1>
+            <p style="color: var(--gris-texte); margin: 0;">Gérer les remplissages pour les gâteaux custom</p>
+        </div>
+        <button class="btn-add" onclick="ouvrirModalCreer()">
+            <i class="bi bi-plus-circle"></i> Ajouter un filling
+        </button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Prix Extra</th>
+                <th>Catégorie</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var filling in Model)
+            {
+                <tr>
+                    <td><strong>#@filling.Id</strong></td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(filling.ImagePath))
+                        {
+                            <img src="@filling.ImagePath" alt="@filling.Nom" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid var(--lilas);" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 60px; height: 60px; background: rgba(232, 152, 154, 0.1); border-radius: 8px; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--rose); opacity: 0.5;"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="width: 60px; height: 60px; background: rgba(232, 152, 154, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 1.5rem; color: var(--rose); opacity: 0.5;"></i>
+                            </div>
+                        }
+                    </td>
+                    <td>@filling.Nom</td>
+                    <td>@(filling.Description?.Length > 50 ? filling.Description.Substring(0, 50) + "..." : filling.Description)</td>
+                    <td><strong>@FormatPrix(filling.PrixExtra)</strong></td>
+                    <td>@filling.Categorie</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="ouvrirModalModifier(@filling.Id, '@Html.Raw((filling.Nom ?? "").Replace("'", "\\'"))', '@Html.Raw((filling.Description ?? "").Replace("'", "\\'"))', @filling.PrixExtra, '@Html.Raw((filling.Categorie ?? "").Replace("'", "\\'"))')">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </button>
+                        <button class="btn-action btn-delete" onclick="supprimerFilling(@filling.Id)">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Créer/Modifier -->
+<div class="modal fade" id="modalFilling" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Ajouter un Filling</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formFilling" enctype="multipart/form-data">
+                    <input type="hidden" id="fillingId" />
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prix Extra</label>
+                        <input type="number" step="0.01" class="form-control" id="prixExtra" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Catégorie</label>
+                        <select class="form-control" id="categorie" required>
+                            <option value="">-- Sélectionner une catégorie --</option>
+                            <option value="Cake">Cake</option>
+                            <option value="Cupcake">Cupcake</option>
+                            <option value="Cookies">Cookies</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image du filling</label>
+                        <input type="file" class="form-control" id="imageFile" accept="image/*" onchange="afficherApercuFillingImage()">
+                        <small class="text-muted" style="color: var(--gris-texte); opacity: 0.7; display: block; margin-top: 0.5rem;">
+                            Téléchargez une image (JPG, PNG, GIF, WebP) - Max 5MB
+                        </small>
+                        <input type="hidden" id="ImagePath">
+                    </div>
+                    <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                        <label class="form-label">Aperçu de l'image</label>
+                        <div style="border: 2px solid var(--lilas); border-radius: 8px; padding: 1rem; background: rgba(232, 152, 154, 0.05); text-align: center;">
+                            <img id="imagePreview" src="" alt="Aperçu" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;">
+                            <div id="imageError" style="display: none; color: #dc3545; padding: 1rem;">
+                                <i class="bi bi-exclamation-triangle"></i> <span id="imageErrorText">L'image ne peut pas être chargée</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn-add" onclick="sauvegarderFilling()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let modalFilling;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        modalFilling = new bootstrap.Modal(document.getElementById('modalFilling'));
+    });
+
+    function ouvrirModalCreer() {
+        document.getElementById('modalTitle').textContent = 'Ajouter un Filling';
+        document.getElementById('formFilling').reset();
+        document.getElementById('fillingId').value = '';
+        document.getElementById('ImagePath').value = '';
+        const fileInput = document.getElementById('imageFile');
+        if (fileInput) fileInput.value = '';
+        const container = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+        if (container) container.style.display = 'none';
+        if (preview) preview.style.display = 'none';
+        if (errorDiv) errorDiv.style.display = 'none';
+        modalFilling.show();
+    }
+
+    function ouvrirModalModifier(id, nom, description, prixExtra, categorie) {
+        document.getElementById('modalTitle').textContent = 'Modifier le Filling';
+        document.getElementById('fillingId').value = id;
+        document.getElementById('nom').value = nom;
+        document.getElementById('description').value = description || '';
+        document.getElementById('prixExtra').value = prixExtra;
+        document.getElementById('ImagePath').value = fillingImagePath || '';
+        const fileInput = document.getElementById('imageFile');
+        if (fileInput) fileInput.value = '';
+
+        // Sélectionner la catégorie dans le select
+        const categorieSelect = document.getElementById('categorie');
+        categorieSelect.value = categorie || '';
+
+        // Aperçu image existante
+        if (fillingImagePath) {
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            const errorDiv = document.getElementById('imageError');
+            container.style.display = 'block';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            const testImage = new Image();
+            testImage.onload = function () {
+                preview.src = fillingImagePath;
+                preview.style.display = 'block';
+                errorDiv.style.display = 'none';
+            };
+            testImage.onerror = function () {
+                preview.style.display = 'none';
+                errorDiv.style.display = 'block';
+            };
+            testImage.src = fillingImagePath;
+        }
+        else {
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            const errorDiv = document.getElementById('imageError');
+            container.style.display = 'none';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'none';
+        }
+        modalFilling.show();
+    }
+
+    function afficherApercuFillingImage() {
+        const fileInput = document.getElementById('imageFile');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const preview = document.getElementById('imagePreview');
+        const errorDiv = document.getElementById('imageError');
+        const errorText = document.getElementById('imageErrorText');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            previewContainer.style.display = 'none';
+            preview.style.display = 'none';
+            errorDiv.style.display = 'none';
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        if (file.size > 5 * 1024 * 1024) {
+            errorText.textContent = "L'image dépasse 5MB. Veuillez choisir une image plus petite.";
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+            fileInput.value = '';
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            errorText.textContent = "Veuillez sélectionner une image valide (JPG, PNG, GIF, WebP).";
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+            fileInput.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            errorDiv.style.display = 'none';
+            previewContainer.style.display = 'block';
+        };
+        reader.onerror = function () {
+            errorText.textContent = "Erreur lors de la lecture du fichier.";
+            errorDiv.style.display = 'block';
+            preview.style.display = 'none';
+            previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function sauvegarderFilling() {
+        const id = document.getElementById('fillingId').value;
+        const categorie = document.getElementById('categorie').value;
+
+        // Validation
+        if (!categorie || categorie === '') {
+            alert('Veuillez sélectionner une catégorie (Cake, Cupcake ou Cookies)');
+            return;
+        }
+
+        const nom = document.getElementById('nom').value;
+        const description = document.getElementById('description').value;
+        const prixExtra = parseFloat(document.getElementById('prixExtra').value);
+        const imagePath = document.getElementById('ImagePath').value;
+        const imageFile = document.getElementById('imageFile').files[0];
+
+        const formData = new FormData();
+        formData.append('id', id ? parseInt(id) : 0);
+        formData.append('nom', nom);
+        formData.append('description', description);
+        formData.append('prixExtra', prixExtra);
+        formData.append('categorie', categorie);
+        formData.append('ImagePath', imagePath);
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        }
+
+        const url = id ? '/Admin/ModifierFilling' : '/Admin/CreerFilling';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                modalFilling.hide();
+                location.reload();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'enregistrement');
+        });
+    }
+
+    function supprimerFilling(id) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce Filling ?')) return;
+
+        fetch('/Admin/SupprimerFilling', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fillingId: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        });
+    }
+</script>

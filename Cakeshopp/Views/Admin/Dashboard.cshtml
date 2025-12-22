@@ -1,0 +1,383 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Admin/_LayoutAdmin.cshtml";
+
+    // Fonction helper pour formater les prix en DH
+    string FormatPrix(decimal prix)
+    {
+        return prix.ToString("N2") + " DH";
+    }
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--rose) 0%, transparent 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(232, 152, 154, 0.25);
+            border-color: var(--rose);
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(232, 152, 154, 0.2) 0%, rgba(232, 152, 154, 0.05) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--rose);
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--lilas);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        color: var(--gris-texte);
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .stat-change {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+        .stat-change.positive {
+            color: #28a745;
+        }
+
+        .stat-change.negative {
+            color: #dc3545;
+        }
+
+    .content-section {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--lilas);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--lilas);
+    }
+
+    .table-custom {
+        width: 100%;
+        color: var(--gris-texte);
+    }
+
+        .table-custom thead {
+            background: rgba(232, 152, 154, 0.1);
+            color: var(--lilas);
+        }
+
+        .table-custom th {
+            padding: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--lilas);
+        }
+
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--lilas);
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+    .badge-status {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+        border: 1px solid #ffc107;
+    }
+
+    .badge-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .badge-processing {
+        background: rgba(0, 123, 255, 0.2);
+        color: #007bff;
+        border: 1px solid #007bff;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 1rem;
+    }
+
+    .top-products-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .top-product-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        background: rgba(232, 152, 154, 0.05);
+        border-radius: 10px;
+        border-left: 4px solid var(--rose);
+    }
+
+    .product-rank {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, var(--rose) 0%, #f0a5a7 100%);
+        color: var(--blanc);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .product-info {
+        flex: 1;
+        margin-left: 1rem;
+    }
+
+    .product-name {
+        color: var(--lilas);
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .product-quantity {
+        color: var(--gris-texte);
+        font-size: 0.9rem;
+    }
+
+    .stat-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-breadcrumb">
+        <a href="@Url.Action("Dashboard", "Admin")">Admin</a> / Dashboard
+    </p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <!-- Total Commandes -->
+    <a href="@Url.Action("Commandes", "Admin")" class="stat-link">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-bag-check"></i>
+            </div>
+            <div class="stat-value">@ViewBag.TotalCommandes</div>
+            <div class="stat-label">Total Commandes</div>
+            <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> Toutes périodes
+            </div>
+        </div>
+    </a>
+
+    <!-- Total Revenus -->
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="stat-value">@FormatPrix(ViewBag.TotalRevenus)</div>
+        <div class="stat-label">Total Revenus</div>
+        <div class="stat-change positive">
+            <i class="bi bi-arrow-up"></i> Toutes périodes
+        </div>
+    </div>
+
+    <!-- Total Clients -->
+    <a href="@Url.Action("Clients", "Admin")" class="stat-link">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">@ViewBag.TotalClients</div>
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> Actifs
+            </div>
+        </div>
+    </a>
+
+    <!-- Demandes Custom -->
+    <a href="@Url.Action("DemandesCustom", "Admin")" class="stat-link">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-palette"></i>
+            </div>
+            <div class="stat-value">@ViewBag.DemandesEnAttente</div>
+            <div class="stat-label">Demandes Custom</div>
+            <div class="stat-change @(ViewBag.DemandesEnAttente > 0 ? "positive" : "")">
+                <i class="bi bi-clock-history"></i> En attente
+            </div>
+        </div>
+    </a>
+
+    <!-- Commandes Aujourd'hui -->
+    <a href="@Url.Action("Commandes", "Admin")" class="stat-link">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="stat-value">@ViewBag.CommandesAujourdhui</div>
+            <div class="stat-label">Commandes Aujourd'hui</div>
+            <div class="stat-change">
+                <i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+            </div>
+        </div>
+    </a>
+
+    <!-- Revenus Aujourd'hui -->
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="stat-value">@FormatPrix(ViewBag.RevenusAujourdhui)</div>
+        <div class="stat-label">Revenus Aujourd'hui</div>
+        <div class="stat-change">
+            <i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd/MM/yyyy")
+        </div>
+    </div>
+</div>
+
+<!-- Content Grid -->
+<div class="row">
+    <!-- Top Gâteaux -->
+    <div class="col-lg-6">
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-trophy"></i> Top 5 Gateaux
+            </h2>
+            <ul class="top-products-list">
+                @{
+                    var rank = 1;
+                    foreach (var gateau in ViewBag.TopGateaux)
+                    {
+                        <li class="top-product-item">
+                            <div class="product-rank">@rank</div>
+                            <div class="product-info">
+                                <div class="product-name">@gateau.Nom</div>
+                                <div class="product-quantity">@gateau.Quantite unites vendues</div>
+                            </div>
+                        </li>
+                        rank++;
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Dernières Commandes -->
+    <div class="col-lg-6">
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-clock-history"></i> Dernieres Commandes
+            </h2>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cmd in ViewBag.DernieresCommandes)
+                    {
+                        <tr>
+                            <td><strong>#@cmd.Id</strong></td>
+                            <td>@cmd.ClientPrenom @cmd.ClientNom</td>
+                            <td><strong>@FormatPrix(cmd.Total)</strong></td>
+                            <td>
+                                @if (cmd.Statut == "En attente")
+                                {
+                                    <span class="badge-status badge-pending">@cmd.Statut</span>
+                                }
+                                else if (cmd.Statut == "En cours")
+                                {
+                                    <span class="badge-status badge-processing">@cmd.Statut</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-status badge-completed">@cmd.Statut</span>
+                                }
+                            </td>
+                            <td>@cmd.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

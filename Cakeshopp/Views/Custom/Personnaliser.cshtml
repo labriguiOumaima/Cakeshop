@@ -1,0 +1,691 @@
+@{
+    ViewData["Title"] = $"{ViewBag.Categorie} - Personnalisation";
+    var categorie = ViewBag.Categorie as string;
+    var categorieImage = ViewBag.CategorieImagePath as string;
+    var fillings = ViewBag.Fillings as List<project.Models.SpongeFilling>;
+    var isLoggedIn = Context.Session.GetString("ClientEmail") != null;
+}
+
+<style>
+    :root {
+        --rose: #E8989A;
+        --lilas: #D4C5E2;
+        --blanc: #FFFFFF;
+        --gris-texte: #4A4A4A;
+        --lilas-bg: #F5F0FA;
+    }
+
+    .personalize-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .product-layout {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+    }
+
+    .product-image-section {
+        position: sticky;
+        top: 2rem;
+        height: fit-content;
+    }
+
+    .product-main-image {
+        width: 100%;
+        height: 500px;
+        border-radius: 15px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 10px 30px rgba(232, 152, 154, 0.2);
+        border: 2px solid var(--lilas);
+    }
+
+        .product-main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .product-details-section {
+        flex: 1;
+    }
+
+    .page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        color: var(--lilas);
+        margin-bottom: 1rem;
+        letter-spacing: 3px;
+    }
+
+    .page-subtitle {
+        color: var(--rose);
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+    }
+
+    .product-description {
+        color: var(--gris-texte);
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: 3rem;
+        padding: 1.5rem;
+        background: rgba(232, 152, 154, 0.08);
+        border-left: 3px solid var(--rose);
+        border-radius: 5px;
+    }
+
+    .form-section {
+        background: var(--blanc);
+        border: 2px solid var(--lilas);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(232, 152, 154, 0.12);
+    }
+
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--lilas);
+        margin-bottom: 0;
+        border: none;
+        padding: 0;
+    }
+
+    .accordion-header {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--lilas);
+    }
+
+    .accordion-icon {
+        font-size: 1.5rem;
+        color: var(--rose);
+        transition: transform 0.3s;
+    }
+
+    #fillingsContainer {
+        display: none;
+        margin-top: 2rem;
+    }
+
+    .filling-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        background: var(--lilas-bg);
+        border: 2px solid var(--lilas);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .filling-option:hover {
+            border-color: var(--rose);
+            background: rgba(232, 152, 154, 0.05);
+        }
+
+        .filling-option.selected {
+            border-color: var(--rose) !important;
+            box-shadow: 0 0 15px rgba(232, 152, 154, 0.3);
+            background: rgba(232, 152, 154, 0.1) !important;
+        }
+
+    .filling-image-placeholder {
+        flex: 0 0 100px;
+        height: 100px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--lilas);
+    }
+
+        .filling-image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .filling-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .filling-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem;
+        color: var(--rose);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .filling-price-extra {
+        color: var(--rose);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-left: 0.5rem;
+    }
+
+    .filling-description {
+        color: var(--gris-texte);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-top: 0.3rem;
+    }
+
+    .filling-description-line {
+        margin-bottom: 0.1rem;
+    }
+
+        .filling-description-line:before {
+            content: "- ";
+            color: var(--rose);
+        }
+
+    .filling-option input[type="radio"] {
+        display: none;
+    }
+
+    .form-control {
+        background-color: var(--blanc);
+        border: 2px solid var(--lilas);
+        color: var(--gris-texte);
+        padding: 1rem;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            background-color: var(--blanc);
+            border-color: var(--rose);
+            color: var(--gris-texte);
+            box-shadow: 0 0 0 0.3rem rgba(232, 152, 154, 0.15);
+        }
+
+    .btn-create-order {
+        background-color: var(--rose);
+        color: var(--blanc);
+        border: none;
+        padding: 1.2rem 3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        width: 100%;
+        margin-top: 2rem;
+        border-radius: 8px;
+    }
+
+        .btn-create-order:hover {
+            background-color: #d97b7d;
+            color: var(--blanc);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(232, 152, 154, 0.4);
+        }
+
+        .btn-create-order:disabled {
+            background-color: rgba(232, 152, 154, 0.3);
+            cursor: not-allowed;
+        }
+
+    .alert {
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 2px solid #dc3545;
+        color: #c82333;
+    }
+
+    .alert-success {
+        background-color: rgba(40, 167, 69, 0.1);
+        border: 2px solid rgba(40, 167, 69, 0.3);
+        color: #28a745;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .quantity-btn {
+        background-color: transparent;
+        color: var(--rose);
+        border: 2px solid var(--rose);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .quantity-btn:hover {
+            background-color: var(--rose);
+            color: var(--blanc);
+        }
+
+    .quantity-input {
+        width: 80px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        background: transparent;
+        border: none;
+        color: var(--rose);
+    }
+
+    .breadcrumb {
+        background-color: rgba(232, 152, 154, 0.08);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--lilas);
+    }
+
+    .breadcrumb-item a {
+        color: var(--rose) !important;
+        transition: color 0.3s;
+    }
+
+        .breadcrumb-item a:hover {
+            color: #d97b7d !important;
+        }
+
+    .breadcrumb-item.active {
+        color: var(--gris-texte) !important;
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .product-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .product-image-section {
+            position: relative;
+        }
+
+        .product-main-image {
+            height: 400px;
+        }
+    }
+</style>
+
+<div class="container personalize-container">
+    <!-- Input caché pour vérifier la connexion -->
+    <input type="hidden" id="isLoggedIn" value="@isLoggedIn.ToString().ToLower()">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="padding: 1rem 0;">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Custom")">Personnalisation</a></li>
+            <li class="breadcrumb-item active">@categorie</li>
+        </ol>
+    </nav>
+
+    <!-- Layout 2 colonnes : Image | Détails -->
+    <div class="product-layout">
+        <!-- Image à gauche -->
+        <div class="product-image-section">
+            <div class="product-main-image">
+                @if (!string.IsNullOrEmpty(categorieImage))
+                {
+                    <img src="@categorieImage"
+                         alt="@categorie"
+                         onerror="this.src='/images/placeholder-cake.jpg'">
+                }
+                else
+                {
+                    <img src="/images/categories/@(categorie.ToLower()).jpg"
+                         alt="@categorie"
+                         onerror="this.src='/images/placeholder-cake.jpg'">
+                }
+            </div>
+        </div>
+
+        <!-- Détails à droite -->
+        <div class="product-details-section">
+            <h1 class="page-title">@categorie</h1>
+            <p class="page-subtitle">Price on request</p>
+
+            <!-- Description du produit -->
+            <div class="product-description">
+                Take a look at our range of signature cakes that reviews consistently confirm offer outstanding quality in both appearance and taste. Whilst our existing established range has evolved in-line with our customer's requirements to include many popular favourites, we also pride ourselves on welcoming new ideas - from including decorative themes and characters for cakes and cookies to entirely new recipes as we move forward
+            </div>
+
+            <!-- Alert pour erreurs -->
+            <div id="errorAlert" class="alert alert-danger" style="display: none;"></div>
+
+            <!-- Formulaire -->
+            <form id="customOrderForm">
+                @if (categorie != "Cookies")
+                {
+                    <!-- Section Sponge Filling -->
+                    <div class="form-section">
+                        <div class="accordion-header" id="spongeFilling-header">
+                            <h2 class="section-title">Sponge filling</h2>
+                            <i class="bi bi-chevron-down accordion-icon" id="accordion-icon"></i>
+                        </div>
+
+                        <div id="fillingsContainer">
+                            @if (fillings != null && fillings.Any())
+                            {
+                                @foreach (var filling in fillings)
+                                {
+                                    <label class="filling-option" data-filling="@filling.Nom">
+                                        <div class="filling-image-placeholder">
+                                            @if (!string.IsNullOrEmpty(filling.ImagePath))
+                                            {
+                                                <img src="@filling.ImagePath"
+                                                     alt="@filling.Nom"
+                                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'bi bi-image\' style=\'font-size: 3rem; color: var(--rose); opacity: 0.3;\'></i>';">
+                                            }
+                                            else
+                                            {
+                                                <img src="/images/fillings/@(filling.Nom.Replace(" ", "-").ToLower()).jpg"
+                                                     alt="@filling.Nom"
+                                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'bi bi-image\' style=\'font-size: 3rem; color: var(--rose); opacity: 0.3;\'></i>';">
+                                            }
+                                        </div>
+
+                                        <div class="filling-content">
+                                            <div>
+                                                <span class="filling-name">@filling.Nom</span>
+                                                @if (filling.PrixExtra > 0)
+                                                {
+                                                    <span class="filling-price-extra">+@filling.PrixExtra.ToString("F2") DH extra</span>
+                                                }
+                                            </div>
+                                            <div class="filling-description">
+                                                @foreach (var line in filling.Description.Split(new[] { ',', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                                                {
+                                                    <div class="filling-description-line">@line.Trim()</div>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <input type="radio" name="spongeFilling" value="@filling.Nom" data-price="@filling.PrixExtra">
+                                    </label>
+                                }
+                            }
+                            else
+                            {
+                                <p style="color: var(--gris-texte);">Aucun filling disponible pour cette catégorie.</p>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Section Quantité -->
+                <div class="form-section">
+                    <h2 class="section-title" style="border-bottom: 2px solid var(--lilas); padding-bottom: 1rem; margin-bottom: 2rem;">Quantity</h2>
+                    <div class="quantity-selector">
+                        <button type="button" class="quantity-btn" id="decreaseQty">-</button>
+                        <input type="number" class="form-control quantity-input" id="quantite" name="quantite" value="1" min="1" max="50" readonly>
+                        <button type="button" class="quantity-btn" id="increaseQty">+</button>
+                    </div>
+                </div>
+
+                <!-- Section Message -->
+                <div class="form-section">
+                    <h2 class="section-title" style="border-bottom: 2px solid var(--lilas); padding-bottom: 1rem; margin-bottom: 2rem;">Message / Special instructions</h2>
+                    <textarea class="form-control" id="message" name="message" rows="5" placeholder="Add special instructions or a personalized message (optional)"></textarea>
+                </div>
+
+                <!-- Bouton Create Order -->
+                @if (isLoggedIn)
+                {
+                    <button type="submit" class="btn btn-create-order" id="submitBtn">
+                        <i class="bi bi-check-circle"></i> Add to cart
+                    </button>
+                }
+                else
+                {
+                    <button type="button"
+                            class="btn btn-create-order"
+                            id="submitBtn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#loginModal">
+                        <i class="bi bi-check-circle"></i> Add to cart
+                    </button>
+                    <p class="text-center mt-2" style="color: var(--gris-texte); font-size: 0.9rem;">
+                        <i class="bi bi-info-circle"></i> Vous devez être connecté pour ajouter au panier
+                    </p>
+                }
+            </form>
+
+            <a href="@Url.Action("Index", "Custom")" class="btn btn-outline-secondary btn-lg w-100 mt-3">
+                <i class="bi bi-arrow-left"></i> Retour à la personnalisation
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('customOrderForm');
+            const quantiteInput = document.getElementById('quantite');
+            const decreaseBtn = document.getElementById('decreaseQty');
+            const increaseBtn = document.getElementById('increaseQty');
+            const errorAlert = document.getElementById('errorAlert');
+            const submitBtn = document.getElementById('submitBtn');
+            const categorie = '@categorie';
+            const hasFilling = '@(categorie != "Cookies")' === 'True';
+
+            const accordionHeader = document.getElementById('spongeFilling-header');
+            if (accordionHeader) {
+                accordionHeader.addEventListener('click', function() {
+                    const container = document.getElementById('fillingsContainer');
+                    const icon = document.getElementById('accordion-icon');
+
+                    if (container.style.display === 'none' || container.style.display === '') {
+                        container.style.display = 'block';
+                        icon.style.transform = 'rotate(180deg)';
+
+                        document.querySelectorAll('.filling-option').forEach(opt => {
+                            opt.style.display = 'flex';
+                        });
+                    } else {
+                        container.style.display = 'none';
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+
+            decreaseBtn.addEventListener('click', function () {
+                const currentValue = parseInt(quantiteInput.value);
+                if (currentValue > 1) {
+                    quantiteInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', function () {
+                const currentValue = parseInt(quantiteInput.value);
+                if (currentValue < 50) {
+                    quantiteInput.value = currentValue + 1;
+                }
+            });
+
+            document.querySelectorAll('.filling-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    document.querySelectorAll('.filling-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+
+                    this.classList.add('selected');
+                    this.querySelector('input[type="radio"]').checked = true;
+
+                    document.querySelectorAll('.filling-option').forEach(opt => {
+                        if (opt !== this) {
+                            opt.style.display = 'none';
+                        }
+                    });
+
+                    const icon = document.getElementById('accordion-icon');
+                    icon.style.transform = 'rotate(0deg)';
+                });
+            });
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                errorAlert.style.display = 'none';
+
+                // Vérifier si l'utilisateur est connecté
+                const isLoggedInElement = document.getElementById('isLoggedIn');
+                const isLoggedIn = isLoggedInElement && isLoggedInElement.value === 'true';
+
+                if (!isLoggedIn) {
+                    // Afficher le modal de connexion
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal) {
+                        const modal = new bootstrap.Modal(loginModal);
+                        modal.show();
+                    } else {
+                        errorAlert.textContent = 'Vous devez être connecté pour ajouter au panier';
+                        errorAlert.style.display = 'block';
+                    }
+                    return;
+                }
+
+                let spongeFilling = '';
+                if (hasFilling) {
+                    const selectedFilling = document.querySelector('input[name="spongeFilling"]:checked');
+                    if (!selectedFilling) {
+                        errorAlert.textContent = 'Please select a sponge filling';
+                        errorAlert.style.display = 'block';
+                        return;
+                    }
+                    spongeFilling = selectedFilling.value;
+                } else {
+                    spongeFilling = 'N/A';
+                }
+
+                const quantite = parseInt(quantiteInput.value);
+                const message = document.getElementById('message').value;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding...';
+
+                try {
+                    const response = await fetch('/Custom/CreateOrder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            categorie: categorie,
+                            spongeFilling: spongeFilling,
+                            quantite: quantite,
+                            message: message
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Créer un toast en bas à droite
+                        const existingToast = document.getElementById('customSuccessToast');
+                        if (existingToast && existingToast.parentElement) {
+                            existingToast.parentElement.remove();
+                        }
+
+                        const container = document.createElement('div');
+                        container.className = 'position-fixed bottom-0 end-0 p-3';
+                        container.style.zIndex = '9999';
+
+                        const toast = document.createElement('div');
+                        toast.id = 'customSuccessToast';
+                        toast.className = 'toast show';
+                        toast.setAttribute('role', 'alert');
+
+                        toast.innerHTML = `
+    <div class="toast-header" style="background-color: var(--rose); color: var(--blanc);">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Succès</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" style="background-color: var(--lilas); color: var(--gris-texte); border: 2px solid var(--rose);">
+        <strong>${data.gateauNom || 'Gâteau personnalisé'}</strong> a été ajouté au panier !
+    </div>`;
+
+                        container.appendChild(toast);
+                        document.body.appendChild(container);
+
+                        setTimeout(() => {
+                            toast.classList.remove('show');
+                        }, 5000);
+
+                        // Mettre à jour le compteur du panier
+                        const panierCountElement = document.querySelector('[data-panier-count]') || document.getElementById('panierCount');
+                        if (panierCountElement) {
+                            const newCount = data.totalArticles != null ? parseInt(data.totalArticles) : (parseInt(panierCountElement.textContent) || 0) + quantite;
+                            panierCountElement.textContent = isNaN(newCount) ? '' : newCount;
+                            panierCountElement.classList.toggle('d-none', !newCount || newCount <= 0);
+                        }
+
+                        // Réinitialiser le formulaire
+                        form.reset();
+                        quantiteInput.value = '1';
+
+                        // Désélectionner les remplissages
+                        document.querySelectorAll('.filling-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        document.querySelectorAll('input[name="spongeFilling"]').forEach(input => {
+                            input.checked = false;
+                        });
+
+                        // Fermer l'accordéon
+                        const fillingsContainer = document.getElementById('fillingsContainer');
+                        if (fillingsContainer) {
+                            fillingsContainer.style.display = 'none';
+                            const icon = document.getElementById('accordion-icon');
+                            if (icon) icon.style.transform = 'rotate(0deg)';
+                        }
+
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Add to cart';
+                    } else {
+                        errorAlert.textContent = data.message || 'Error creating request';
+                        errorAlert.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Add to cart';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    errorAlert.textContent = 'Connection error. Please try again.';
+                    errorAlert.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Add to cart';
+                }
+            });
+        });
+</script>
