@@ -10,12 +10,15 @@ namespace project.Controllers
         private readonly Neo4jService _neo4jService;
         private readonly ILogger<GateauController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly GateauRecommendationService _recommendationService;
 
-        public GateauController(Neo4jService neo4jService, ILogger<GateauController> logger, IWebHostEnvironment webHostEnvironment)
+        public GateauController(Neo4jService neo4jService, ILogger<GateauController> logger,
+            IWebHostEnvironment webHostEnvironment, GateauRecommendationService recommendationService)
         {
             _neo4jService = neo4jService;
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
+            _recommendationService = recommendationService;
         }
 
         // GET: Gateau/Index - Page d'ACCUEIL (4 gâteaux)
@@ -166,6 +169,15 @@ namespace project.Controllers
                 };
 
                 await session.DisposeAsync();
+
+                // AJOUT : Récupérer les recommandations par achats
+                var recommendations = await _recommendationService.GetRecommendations(id);
+                ViewData["Recommendations"] = recommendations;
+
+                // AJOUT : Récupérer les recommandations par catégorie
+                var recommendationsByCategory = await _recommendationService.GetRecommendationsByCategory(id);
+                ViewData["RecommendationsByCategory"] = recommendationsByCategory;
+
                 return View(gateau);
             }
             catch

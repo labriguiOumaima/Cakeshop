@@ -14,6 +14,9 @@ builder.Services.AddSingleton(new Neo4jService(
     neo4jConfig["Database"] ?? "gateaux"
 ));
 
+// ===== AJOUT DU SERVICE DE RECOMMANDATION =====
+builder.Services.AddScoped<GateauRecommendationService>();
+
 // ===== AJOUT DES SESSIONS =====
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -22,7 +25,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
 
 var app = builder.Build();
 
@@ -35,11 +37,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-
 app.UseSession();
-
-
 app.UseRouting();
 app.UseAuthorization();
 
